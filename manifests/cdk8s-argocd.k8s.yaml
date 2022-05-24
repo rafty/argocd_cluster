@@ -1,0 +1,2812 @@
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  labels:
+    app.kubernetes.io/component: application-controller
+    app.kubernetes.io/instance: yargo-cd
+    app.kubernetes.io/managed-by: Helm
+    app.kubernetes.io/name: argocd-application-controller
+    app.kubernetes.io/part-of: argocd
+    helm.sh/chart: argo-cd-4.6.4
+  name: argocd-application-controller
+automountServiceAccountToken: true
+---
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  labels:
+    app.kubernetes.io/component: applicationset-controller
+    app.kubernetes.io/instance: yargo-cd
+    app.kubernetes.io/managed-by: Helm
+    app.kubernetes.io/name: argocd-applicationset-controller
+    app.kubernetes.io/part-of: argocd
+    helm.sh/chart: argo-cd-4.6.4
+  name: yargo-cd-argocd-applicationset-controller
+---
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  labels:
+    app.kubernetes.io/component: notifications-controller
+    app.kubernetes.io/instance: yargo-cd
+    app.kubernetes.io/managed-by: Helm
+    app.kubernetes.io/name: argocd-notifications-controller
+    app.kubernetes.io/part-of: argocd
+    helm.sh/chart: argo-cd-4.6.4
+  name: argocd-notifications-controller
+---
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  labels:
+    app.kubernetes.io/component: repo-server
+    app.kubernetes.io/instance: yargo-cd
+    app.kubernetes.io/managed-by: Helm
+    app.kubernetes.io/name: argocd-repo-server
+    app.kubernetes.io/part-of: argocd
+    helm.sh/chart: argo-cd-4.6.4
+  name: yargo-cd-argocd-repo-server
+automountServiceAccountToken: true
+---
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  labels:
+    app.kubernetes.io/component: server
+    app.kubernetes.io/instance: yargo-cd
+    app.kubernetes.io/managed-by: Helm
+    app.kubernetes.io/name: argocd-server
+    app.kubernetes.io/part-of: argocd
+    helm.sh/chart: argo-cd-4.6.4
+  name: argocd-server
+automountServiceAccountToken: true
+---
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  labels:
+    app.kubernetes.io/component: dex-server
+    app.kubernetes.io/instance: yargo-cd
+    app.kubernetes.io/managed-by: Helm
+    app.kubernetes.io/name: argocd-dex-server
+    app.kubernetes.io/part-of: argocd
+    helm.sh/chart: argo-cd-4.6.4
+  name: argocd-dex-server
+automountServiceAccountToken: true
+---
+apiVersion: v1
+kind: Secret
+metadata:
+  labels:
+    app.kubernetes.io/component: server
+    app.kubernetes.io/instance: yargo-cd
+    app.kubernetes.io/managed-by: Helm
+    app.kubernetes.io/name: argocd-secret
+    app.kubernetes.io/part-of: argocd
+    helm.sh/chart: argo-cd-4.6.4
+  name: argocd-secret
+type: Opaque
+---
+apiVersion: v1
+kind: Secret
+metadata:
+  labels:
+    app.kubernetes.io/component: notifications-controller
+    app.kubernetes.io/instance: yargo-cd
+    app.kubernetes.io/managed-by: Helm
+    app.kubernetes.io/name: argocd-notifications-controller
+    app.kubernetes.io/part-of: argocd
+    helm.sh/chart: argo-cd-4.6.4
+  name: yargo-cd-argocd-notifications-controller-secret
+type: Opaque
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  labels:
+    app.kubernetes.io/component: server
+    app.kubernetes.io/instance: yargo-cd
+    app.kubernetes.io/managed-by: Helm
+    app.kubernetes.io/name: argocd-cm
+    app.kubernetes.io/part-of: argocd
+    helm.sh/chart: argo-cd-4.6.4
+  name: argocd-cm
+data:
+  application.instanceLabelKey: argocd.argoproj.io/instance
+  url: ""
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  labels:
+    app.kubernetes.io/instance: yargo-cd
+    app.kubernetes.io/managed-by: Helm
+    app.kubernetes.io/name: argocd-gpg-keys-cm
+    app.kubernetes.io/part-of: argocd
+    helm.sh/chart: argo-cd-4.6.4
+  name: argocd-gpg-keys-cm
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  labels:
+    app.kubernetes.io/component: server
+    app.kubernetes.io/instance: yargo-cd
+    app.kubernetes.io/managed-by: Helm
+    app.kubernetes.io/name: argocd-rbac-cm
+    app.kubernetes.io/part-of: argocd
+    helm.sh/chart: argo-cd-4.6.4
+  name: argocd-rbac-cm
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  labels:
+    app.kubernetes.io/component: server
+    app.kubernetes.io/instance: yargo-cd
+    app.kubernetes.io/managed-by: Helm
+    app.kubernetes.io/name: argocd-ssh-known-hosts-cm
+    app.kubernetes.io/part-of: argocd
+    helm.sh/chart: argo-cd-4.6.4
+  name: argocd-ssh-known-hosts-cm
+data:
+  ssh_known_hosts: |
+    bitbucket.org ssh-rsa AAAAB3NzaC1yc2EAAAABIwAAAQEAubiN81eDcafrgMeLzaFPsw2kNvEcqTKl/VqLat/MaB33pZy0y3rJZtnqwR2qOOvbwKZYKiEO1O6VqNEBxKvJJelCq0dTXWT5pbO2gDXC6h6QDXCaHo6pOHGPUy+YBaGQRGuSusMEASYiWunYN0vCAI8QaXnWMXNMdFP3jHAJH0eDsoiGnLPBlBp4TNm6rYI74nMzgz3B9IikW4WVK+dc8KZJZWYjAuORU3jc1c/NPskD2ASinf8v3xnfXeukU0sJ5N6m5E8VLjObPEO+mN2t/FZTMZLiFqPWc/ALSqnMnnhwrNi2rbfg/rd/IpL8Le3pSBne8+seeFVBoGqzHM9yXw==
+    github.com ecdsa-sha2-nistp256 AAAAE2VjZHNhLXNoYTItbmlzdHAyNTYAAAAIbmlzdHAyNTYAAABBBEmKSENjQEezOmxkZMy7opKgwFB9nkt5YRrYMjNuG5N87uRgg6CLrbo5wAdT/y6v0mKV0U2w0WZ2YB/++Tpockg=
+    github.com ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIOMqqnkVzrm0SdG6UOoqKLsabgH5C9okWi0dh2l9GKJl
+    github.com ssh-rsa AAAAB3NzaC1yc2EAAAABIwAAAQEAq2A7hRGmdnm9tUDbO9IDSwBK6TbQa+PXYPCPy6rbTrTtw7PHkccKrpp0yVhp5HdEIcKr6pLlVDBfOLX9QUsyCOV0wzfjIJNlGEYsdlLJizHhbn2mUjvSAHQqZETYP81eFzLQNnPHt4EVVUh7VfDESU84KezmD5QlWpXLmvU31/yMf+Se8xhHTvKSCZIFImWwoG6mbUoWf9nzpIoaSjB+weqqUUmpaaasXVal72J+UX2B+2RPW3RcT0eOzQgqlJL3RKrTJvdsjE3JEAvGq3lGHSZXy28G3skua2SmVi/w4yCE6gbODqnTWlg7+wC604ydGXA8VJiS5ap43JXiUFFAaQ==
+    gitlab.com ecdsa-sha2-nistp256 AAAAE2VjZHNhLXNoYTItbmlzdHAyNTYAAAAIbmlzdHAyNTYAAABBBFSMqzJeV9rUzU4kWitGjeR4PWSa29SPqJ1fVkhtj3Hw9xjLVXVYrU9QlYWrOLXBpQ6KWjbjTDTdDkoohFzgbEY=
+    gitlab.com ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIAfuCHKVTjquxvt6CM6tdG4SLp1Btn/nOeHHE5UOzRdf
+    gitlab.com ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABAQCsj2bNKTBSpIYDEGk9KxsGh3mySTRgMtXL583qmBpzeQ+jqCMRgBqB98u3z++J1sKlXHWfM9dyhSevkMwSbhoR8XIq/U0tCNyokEi/ueaBMCvbcTHhO7FcwzY92WK4Yt0aGROY5qX2UKSeOvuP4D6TPqKF1onrSzH9bx9XUf2lEdWT/ia1NEKjunUqu1xOB/StKDHMoX4/OKyIzuS0q/T1zOATthvasJFoPrAjkohTyaDUz2LN5JoH839hViyEG82yB+MjcFV5MU3N1l1QL3cVUCh93xSaua1N85qivl+siMkPGbO5xR/En4iEY6K2XPASUEMaieWVNTRCtJ4S8H+9
+    ssh.dev.azure.com ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABAQC7Hr1oTWqNqOlzGJOfGJ4NakVyIzf1rXYd4d7wo6jBlkLvCA4odBlL0mDUyZ0/QUfTTqeu+tm22gOsv+VrVTMk6vwRU75gY/y9ut5Mb3bR5BV58dKXyq9A9UeB5Cakehn5Zgm6x1mKoVyf+FFn26iYqXJRgzIZZcZ5V6hrE0Qg39kZm4az48o0AUbf6Sp4SLdvnuMa2sVNwHBboS7EJkm57XQPVU3/QpyNLHbWDdzwtrlS+ez30S3AdYhLKEOxAG8weOnyrtLJAUen9mTkol8oII1edf7mWWbWVf0nBmly21+nZcmCTISQBtdcyPaEno7fFQMDD26/s0lfKob4Kw8H
+    vs-ssh.visualstudio.com ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABAQC7Hr1oTWqNqOlzGJOfGJ4NakVyIzf1rXYd4d7wo6jBlkLvCA4odBlL0mDUyZ0/QUfTTqeu+tm22gOsv+VrVTMk6vwRU75gY/y9ut5Mb3bR5BV58dKXyq9A9UeB5Cakehn5Zgm6x1mKoVyf+FFn26iYqXJRgzIZZcZ5V6hrE0Qg39kZm4az48o0AUbf6Sp4SLdvnuMa2sVNwHBboS7EJkm57XQPVU3/QpyNLHbWDdzwtrlS+ez30S3AdYhLKEOxAG8weOnyrtLJAUen9mTkol8oII1edf7mWWbWVf0nBmly21+nZcmCTISQBtdcyPaEno7fFQMDD26/s0lfKob4Kw8H
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  labels:
+    app.kubernetes.io/component: server
+    app.kubernetes.io/instance: yargo-cd
+    app.kubernetes.io/managed-by: Helm
+    app.kubernetes.io/name: argocd-tls-certs-cm
+    app.kubernetes.io/part-of: argocd
+    helm.sh/chart: argo-cd-4.6.4
+  name: argocd-tls-certs-cm
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  labels:
+    app.kubernetes.io/component: notifications-controller
+    app.kubernetes.io/instance: yargo-cd
+    app.kubernetes.io/managed-by: Helm
+    app.kubernetes.io/name: argocd-notifications-controller
+    app.kubernetes.io/part-of: argocd
+    helm.sh/chart: argo-cd-4.6.4
+  name: yargo-cd-argocd-notifications-controller-cm
+data:
+  context: |
+    argocdUrl:
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  labels:
+    app.kubernetes.io/component: application-controller
+    app.kubernetes.io/instance: yargo-cd
+    app.kubernetes.io/managed-by: Helm
+    app.kubernetes.io/name: argocd-application-controller
+    app.kubernetes.io/part-of: argocd
+    helm.sh/chart: argo-cd-4.6.4
+  name: yargo-cd-argocd-application-controller
+rules:
+  - apiGroups:
+      - "*"
+    resources:
+      - "*"
+    verbs:
+      - "*"
+  - nonResourceURLs:
+      - "*"
+    verbs:
+      - "*"
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  labels:
+    app.kubernetes.io/component: server
+    app.kubernetes.io/instance: yargo-cd
+    app.kubernetes.io/managed-by: Helm
+    app.kubernetes.io/name: argocd-server
+    app.kubernetes.io/part-of: argocd
+    helm.sh/chart: argo-cd-4.6.4
+  name: yargo-cd-argocd-server
+rules:
+  - apiGroups:
+      - "*"
+    resources:
+      - "*"
+    verbs:
+      - delete
+      - get
+      - patch
+  - apiGroups:
+      - ""
+    resources:
+      - events
+    verbs:
+      - list
+  - apiGroups:
+      - ""
+    resources:
+      - pods
+      - pods/log
+    verbs:
+      - get
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  labels:
+    app.kubernetes.io/component: application-controller
+    app.kubernetes.io/instance: yargo-cd
+    app.kubernetes.io/managed-by: Helm
+    app.kubernetes.io/name: argocd-application-controller
+    app.kubernetes.io/part-of: argocd
+    helm.sh/chart: argo-cd-4.6.4
+  name: yargo-cd-argocd-application-controller
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: yargo-cd-argocd-application-controller
+subjects:
+  - kind: ServiceAccount
+    name: argocd-application-controller
+    namespace: default
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  labels:
+    app.kubernetes.io/component: server
+    app.kubernetes.io/instance: yargo-cd
+    app.kubernetes.io/managed-by: Helm
+    app.kubernetes.io/name: argocd-server
+    app.kubernetes.io/part-of: argocd
+    helm.sh/chart: argo-cd-4.6.4
+  name: yargo-cd-argocd-server
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: yargo-cd-argocd-server
+subjects:
+  - kind: ServiceAccount
+    name: argocd-server
+    namespace: default
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: Role
+metadata:
+  labels:
+    app.kubernetes.io/component: application-controller
+    app.kubernetes.io/instance: yargo-cd
+    app.kubernetes.io/managed-by: Helm
+    app.kubernetes.io/name: argocd-application-controller
+    app.kubernetes.io/part-of: argocd
+    helm.sh/chart: argo-cd-4.6.4
+  name: yargo-cd-argocd-application-controller
+rules:
+  - apiGroups:
+      - ""
+    resources:
+      - secrets
+      - configmaps
+    verbs:
+      - get
+      - list
+      - watch
+  - apiGroups:
+      - argoproj.io
+    resources:
+      - applications
+      - appprojects
+    verbs:
+      - create
+      - get
+      - list
+      - watch
+      - update
+      - patch
+      - delete
+  - apiGroups:
+      - ""
+    resources:
+      - events
+    verbs:
+      - create
+      - list
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: Role
+metadata:
+  labels:
+    app.kubernetes.io/component: applicationset-controller
+    app.kubernetes.io/instance: yargo-cd
+    app.kubernetes.io/managed-by: Helm
+    app.kubernetes.io/name: argocd-applicationset-controller
+    app.kubernetes.io/part-of: argocd
+    helm.sh/chart: argo-cd-4.6.4
+  name: yargo-cd-argocd-applicationset-controller
+rules:
+  - apiGroups:
+      - argoproj.io
+    resources:
+      - applications
+      - appprojects
+      - applicationsets
+      - applicationsets/finalizers
+    verbs:
+      - create
+      - delete
+      - get
+      - list
+      - patch
+      - update
+      - watch
+  - apiGroups:
+      - argoproj.io
+    resources:
+      - applicationsets/status
+    verbs:
+      - get
+      - patch
+      - update
+  - apiGroups:
+      - ""
+    resources:
+      - events
+    verbs:
+      - create
+      - delete
+      - get
+      - list
+      - patch
+      - update
+      - watch
+  - apiGroups:
+      - ""
+    resources:
+      - secrets
+    verbs:
+      - get
+      - list
+      - watch
+  - apiGroups:
+      - ""
+    resources:
+      - configmaps
+    verbs:
+      - create
+      - delete
+      - get
+      - list
+      - patch
+      - update
+      - watch
+  - apiGroups:
+      - apps
+      - extensions
+    resources:
+      - deployments
+    verbs:
+      - get
+      - list
+      - watch
+  - apiGroups:
+      - coordination.k8s.io
+    resources:
+      - leases
+    verbs:
+      - create
+      - delete
+      - get
+      - list
+      - patch
+      - update
+      - watch
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: Role
+metadata:
+  labels:
+    app.kubernetes.io/component: notifications-controller
+    app.kubernetes.io/instance: yargo-cd
+    app.kubernetes.io/managed-by: Helm
+    app.kubernetes.io/name: argocd-notifications-controller
+    app.kubernetes.io/part-of: argocd
+    helm.sh/chart: argo-cd-4.6.4
+  name: yargo-cd-argocd-notifications-controller
+rules:
+  - apiGroups:
+      - argoproj.io
+    resources:
+      - applications
+      - appprojects
+    verbs:
+      - get
+      - list
+      - watch
+      - update
+      - patch
+  - apiGroups:
+      - ""
+    resources:
+      - configmaps
+      - secrets
+    verbs:
+      - list
+      - watch
+  - apiGroups:
+      - ""
+    resourceNames:
+      - yargo-cd-argocd-notifications-controller-cm
+    resources:
+      - configmaps
+    verbs:
+      - get
+  - apiGroups:
+      - ""
+    resourceNames:
+      - yargo-cd-argocd-notifications-controller-secret
+    resources:
+      - secrets
+    verbs:
+      - get
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: Role
+metadata:
+  labels:
+    app.kubernetes.io/component: repo-server
+    app.kubernetes.io/instance: yargo-cd
+    app.kubernetes.io/managed-by: Helm
+    app.kubernetes.io/name: argocd-repo-server
+    app.kubernetes.io/part-of: argocd
+    helm.sh/chart: argo-cd-4.6.4
+  name: yargo-cd-argocd-repo-server
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: Role
+metadata:
+  labels:
+    app.kubernetes.io/component: server
+    app.kubernetes.io/instance: yargo-cd
+    app.kubernetes.io/managed-by: Helm
+    app.kubernetes.io/name: argocd-server
+    app.kubernetes.io/part-of: argocd
+    helm.sh/chart: argo-cd-4.6.4
+  name: yargo-cd-argocd-server
+rules:
+  - apiGroups:
+      - ""
+    resources:
+      - secrets
+      - configmaps
+    verbs:
+      - create
+      - get
+      - list
+      - watch
+      - update
+      - patch
+      - delete
+  - apiGroups:
+      - argoproj.io
+    resources:
+      - applications
+      - appprojects
+    verbs:
+      - create
+      - get
+      - list
+      - watch
+      - update
+      - delete
+      - patch
+  - apiGroups:
+      - ""
+    resources:
+      - events
+    verbs:
+      - create
+      - list
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: Role
+metadata:
+  labels:
+    app.kubernetes.io/component: dex-server
+    app.kubernetes.io/instance: yargo-cd
+    app.kubernetes.io/managed-by: Helm
+    app.kubernetes.io/name: argocd-dex-server
+    app.kubernetes.io/part-of: argocd
+    helm.sh/chart: argo-cd-4.6.4
+  name: yargo-cd-argocd-dex-server
+rules:
+  - apiGroups:
+      - ""
+    resources:
+      - secrets
+      - configmaps
+    verbs:
+      - get
+      - list
+      - watch
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  labels:
+    app.kubernetes.io/component: application-controller
+    app.kubernetes.io/instance: yargo-cd
+    app.kubernetes.io/managed-by: Helm
+    app.kubernetes.io/name: argocd-application-controller
+    app.kubernetes.io/part-of: argocd
+    helm.sh/chart: argo-cd-4.6.4
+  name: yargo-cd-argocd-application-controller
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: Role
+  name: yargo-cd-argocd-application-controller
+subjects:
+  - kind: ServiceAccount
+    name: argocd-application-controller
+    namespace: default
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  labels:
+    app.kubernetes.io/component: applicationset-controller
+    app.kubernetes.io/instance: yargo-cd
+    app.kubernetes.io/managed-by: Helm
+    app.kubernetes.io/name: argocd-applicationset-controller
+    app.kubernetes.io/part-of: argocd
+    helm.sh/chart: argo-cd-4.6.4
+  name: yargo-cd-argocd-applicationset-controller
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: Role
+  name: yargo-cd-argocd-applicationset-controller
+subjects:
+  - kind: ServiceAccount
+    name: yargo-cd-argocd-applicationset-controller
+    namespace: default
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  labels:
+    app.kubernetes.io/component: notifications-controller
+    app.kubernetes.io/instance: yargo-cd
+    app.kubernetes.io/managed-by: Helm
+    app.kubernetes.io/name: argocd-notifications-controller
+    app.kubernetes.io/part-of: argocd
+    helm.sh/chart: argo-cd-4.6.4
+  name: yargo-cd-argocd-notifications-controller
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: Role
+  name: yargo-cd-argocd-notifications-controller
+subjects:
+  - kind: ServiceAccount
+    name: argocd-notifications-controller
+    namespace: default
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  labels:
+    app.kubernetes.io/component: repo-server
+    app.kubernetes.io/instance: yargo-cd
+    app.kubernetes.io/managed-by: Helm
+    app.kubernetes.io/name: argocd-repo-server
+    app.kubernetes.io/part-of: argocd
+    helm.sh/chart: argo-cd-4.6.4
+  name: yargo-cd-argocd-repo-server
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: Role
+  name: yargo-cd-argocd-repo-server
+subjects:
+  - kind: ServiceAccount
+    name: yargo-cd-argocd-repo-server
+    namespace: default
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  labels:
+    app.kubernetes.io/component: server
+    app.kubernetes.io/instance: yargo-cd
+    app.kubernetes.io/managed-by: Helm
+    app.kubernetes.io/name: argocd-server
+    app.kubernetes.io/part-of: argocd
+    helm.sh/chart: argo-cd-4.6.4
+  name: yargo-cd-argocd-server
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: Role
+  name: yargo-cd-argocd-server
+subjects:
+  - kind: ServiceAccount
+    name: argocd-server
+    namespace: default
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  labels:
+    app.kubernetes.io/component: dex-server
+    app.kubernetes.io/instance: yargo-cd
+    app.kubernetes.io/managed-by: Helm
+    app.kubernetes.io/name: argocd-dex-server
+    app.kubernetes.io/part-of: argocd
+    helm.sh/chart: argo-cd-4.6.4
+  name: yargo-cd-argocd-dex-server
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: Role
+  name: yargo-cd-argocd-dex-server
+subjects:
+  - kind: ServiceAccount
+    name: argocd-dex-server
+    namespace: default
+---
+apiVersion: v1
+kind: Service
+metadata:
+  labels:
+    app.kubernetes.io/component: application-controller
+    app.kubernetes.io/instance: yargo-cd
+    app.kubernetes.io/managed-by: Helm
+    app.kubernetes.io/name: argocd-application-controller
+    app.kubernetes.io/part-of: argocd
+    helm.sh/chart: argo-cd-4.6.4
+  name: yargo-cd-argocd-application-controller
+spec:
+  ports:
+    - name: https-controller
+      port: 8082
+      targetPort: 8082
+  selector:
+    app.kubernetes.io/instance: yargo-cd
+    app.kubernetes.io/name: argocd-application-controller
+---
+apiVersion: v1
+kind: Service
+metadata:
+  labels:
+    app.kubernetes.io/component: applicationset-controller
+    app.kubernetes.io/instance: yargo-cd
+    app.kubernetes.io/managed-by: Helm
+    app.kubernetes.io/name: argocd-applicationset-controller
+    app.kubernetes.io/part-of: argocd
+    helm.sh/chart: argo-cd-4.6.4
+  name: yargo-cd-argocd-applicationset-controller
+spec:
+  ports:
+    - name: webhook
+      port: 7000
+      targetPort: webhook
+  selector:
+    app.kubernetes.io/instance: yargo-cd
+    app.kubernetes.io/name: argocd-applicationset-controller
+---
+apiVersion: v1
+kind: Service
+metadata:
+  labels:
+    app.kubernetes.io/component: repo-server
+    app.kubernetes.io/instance: yargo-cd
+    app.kubernetes.io/managed-by: Helm
+    app.kubernetes.io/name: argocd-repo-server
+    app.kubernetes.io/part-of: argocd
+    helm.sh/chart: argo-cd-4.6.4
+  name: yargo-cd-argocd-repo-server
+spec:
+  ports:
+    - name: https-repo-server
+      port: 8081
+      protocol: TCP
+      targetPort: repo-server
+  selector:
+    app.kubernetes.io/instance: yargo-cd
+    app.kubernetes.io/name: argocd-repo-server
+---
+apiVersion: v1
+kind: Service
+metadata:
+  labels:
+    app.kubernetes.io/component: server
+    app.kubernetes.io/instance: yargo-cd
+    app.kubernetes.io/managed-by: Helm
+    app.kubernetes.io/name: argocd-server
+    app.kubernetes.io/part-of: argocd
+    helm.sh/chart: argo-cd-4.6.4
+  name: yargo-cd-argocd-server
+spec:
+  ports:
+    - name: http
+      nodePort: 30080
+      port: 80
+      protocol: TCP
+      targetPort: server
+    - name: https
+      nodePort: 30443
+      port: 443
+      protocol: TCP
+      targetPort: server
+  selector:
+    app.kubernetes.io/instance: yargo-cd
+    app.kubernetes.io/name: argocd-server
+  type: NodePort
+---
+apiVersion: v1
+kind: Service
+metadata:
+  labels:
+    app.kubernetes.io/component: dex-server
+    app.kubernetes.io/instance: yargo-cd
+    app.kubernetes.io/managed-by: Helm
+    app.kubernetes.io/name: argocd-dex-server
+    app.kubernetes.io/part-of: argocd
+    helm.sh/chart: argo-cd-4.6.4
+  name: yargo-cd-argocd-dex-server
+spec:
+  ports:
+    - name: http
+      port: 5556
+      protocol: TCP
+      targetPort: http
+    - name: grpc
+      port: 5557
+      protocol: TCP
+      targetPort: grpc
+  selector:
+    app.kubernetes.io/instance: yargo-cd
+    app.kubernetes.io/name: argocd-dex-server
+---
+apiVersion: v1
+kind: Service
+metadata:
+  labels:
+    app.kubernetes.io/component: redis
+    app.kubernetes.io/instance: yargo-cd
+    app.kubernetes.io/managed-by: Helm
+    app.kubernetes.io/name: argocd-redis
+    app.kubernetes.io/part-of: argocd
+    helm.sh/chart: argo-cd-4.6.4
+  name: yargo-cd-argocd-redis
+spec:
+  ports:
+    - name: redis
+      port: 6379
+      targetPort: 6379
+  selector:
+    app.kubernetes.io/instance: yargo-cd
+    app.kubernetes.io/name: argocd-redis
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    app.kubernetes.io/component: applicationset-controller
+    app.kubernetes.io/instance: yargo-cd
+    app.kubernetes.io/managed-by: Helm
+    app.kubernetes.io/name: argocd-applicationset-controller
+    app.kubernetes.io/part-of: argocd
+    app.kubernetes.io/version: v0.4.1
+    helm.sh/chart: argo-cd-4.6.4
+  name: yargo-cd-argocd-applicationset-controller
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app.kubernetes.io/instance: yargo-cd
+      app.kubernetes.io/name: argocd-applicationset-controller
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/component: applicationset-controller
+        app.kubernetes.io/instance: yargo-cd
+        app.kubernetes.io/managed-by: Helm
+        app.kubernetes.io/name: argocd-applicationset-controller
+        app.kubernetes.io/part-of: argocd
+        app.kubernetes.io/version: v0.4.1
+        helm.sh/chart: argo-cd-4.6.4
+    spec:
+      containers:
+        - command:
+            - applicationset-controller
+            - --metrics-addr=:8080
+            - --probe-addr=:8081
+            - --namespace=default
+            - --argocd-repo-server=yargo-cd-argocd-repo-server:8081
+            - --policy=sync
+            - --debug=false
+            - --dry-run=false
+          image: quay.io/argoproj/argocd-applicationset:v0.4.1
+          imagePullPolicy: IfNotPresent
+          name: applicationset-controller
+          ports:
+            - containerPort: 8081
+              name: http
+              protocol: TCP
+            - containerPort: 8080
+              name: metrics
+              protocol: TCP
+            - containerPort: 7000
+              name: webhook
+              protocol: TCP
+          resources: {}
+          securityContext: {}
+          volumeMounts:
+            - mountPath: /tmp
+              name: tmp-dir
+            - mountPath: /app/config/ssh
+              name: ssh-known-hosts
+            - mountPath: /app/config/tls
+              name: tls-certs
+            - mountPath: /app/config/gpg/source
+              name: gpg-keys
+            - mountPath: /app/config/gpg/keys
+              name: gpg-keyring
+      securityContext: {}
+      serviceAccountName: yargo-cd-argocd-applicationset-controller
+      volumes:
+        - emptyDir: {}
+          name: tmp-dir
+        - configMap:
+            name: argocd-ssh-known-hosts-cm
+          name: ssh-known-hosts
+        - configMap:
+            name: argocd-tls-certs-cm
+          name: tls-certs
+        - configMap:
+            name: argocd-gpg-keys-cm
+          name: gpg-keys
+        - emptyDir: {}
+          name: gpg-keyring
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    app.kubernetes.io/component: notifications-controller
+    app.kubernetes.io/instance: yargo-cd
+    app.kubernetes.io/managed-by: Helm
+    app.kubernetes.io/name: argocd-notifications-controller
+    app.kubernetes.io/part-of: argocd
+    app.kubernetes.io/version: v2.3.4
+    helm.sh/chart: argo-cd-4.6.4
+  name: yargo-cd-argocd-notifications-controller
+spec:
+  selector:
+    matchLabels:
+      app.kubernetes.io/instance: yargo-cd
+      app.kubernetes.io/name: argocd-notifications-controller
+  strategy:
+    type: Recreate
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/component: notifications-controller
+        app.kubernetes.io/instance: yargo-cd
+        app.kubernetes.io/managed-by: Helm
+        app.kubernetes.io/name: argocd-notifications-controller
+        app.kubernetes.io/part-of: argocd
+        app.kubernetes.io/version: v2.3.4
+        helm.sh/chart: argo-cd-4.6.4
+    spec:
+      containers:
+        - command:
+            - argocd-notifications
+            - --loglevel=info
+            - --namespace=default
+            - --argocd-repo-server=yargo-cd-argocd-repo-server:8081
+            - --secret-name=yargo-cd-argocd-notifications-controller-secret
+            - --config-map-name=yargo-cd-argocd-notifications-controller-cm
+          image: quay.io/argoproj/argocd:v2.3.4
+          imagePullPolicy: IfNotPresent
+          name: notifications-controller
+          resources: {}
+          volumeMounts:
+            - mountPath: /app/config/tls
+              name: tls-certs
+            - mountPath: /app/config/reposerver/tls
+              name: argocd-repo-server-tls
+          workingDir: /app
+      securityContext:
+        runAsNonRoot: true
+      serviceAccountName: argocd-notifications-controller
+      volumes:
+        - configMap:
+            name: argocd-tls-certs-cm
+          name: tls-certs
+        - name: argocd-repo-server-tls
+          secret:
+            items:
+              - key: tls.crt
+                path: tls.crt
+              - key: tls.key
+                path: tls.key
+              - key: ca.crt
+                path: ca.crt
+            optional: true
+            secretName: argocd-repo-server-tls
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    app.kubernetes.io/component: repo-server
+    app.kubernetes.io/instance: yargo-cd
+    app.kubernetes.io/managed-by: Helm
+    app.kubernetes.io/name: argocd-repo-server
+    app.kubernetes.io/part-of: argocd
+    app.kubernetes.io/version: v2.3.4
+    helm.sh/chart: argo-cd-4.6.4
+  name: yargo-cd-argocd-repo-server
+spec:
+  replicas: 1
+  revisionHistoryLimit: 5
+  selector:
+    matchLabels:
+      app.kubernetes.io/instance: yargo-cd
+      app.kubernetes.io/name: argocd-repo-server
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/component: repo-server
+        app.kubernetes.io/instance: yargo-cd
+        app.kubernetes.io/managed-by: Helm
+        app.kubernetes.io/name: argocd-repo-server
+        app.kubernetes.io/part-of: argocd
+        app.kubernetes.io/version: v2.3.4
+        helm.sh/chart: argo-cd-4.6.4
+    spec:
+      containers:
+        - args:
+            - argocd-repo-server
+            - --redis
+            - yargo-cd-argocd-redis:6379
+            - --logformat
+            - text
+            - --loglevel
+            - info
+          command:
+            - entrypoint.sh
+          env:
+            - name: HELM_CACHE_HOME
+              value: /helm-working-dir
+            - name: HELM_CONFIG_HOME
+              value: /helm-working-dir
+            - name: HELM_DATA_HOME
+              value: /helm-working-dir
+          image: quay.io/argoproj/argocd:v2.3.4
+          imagePullPolicy: IfNotPresent
+          livenessProbe:
+            failureThreshold: 3
+            initialDelaySeconds: 10
+            periodSeconds: 10
+            successThreshold: 1
+            tcpSocket:
+              port: 8081
+            timeoutSeconds: 1
+          name: repo-server
+          ports:
+            - containerPort: 8081
+              name: repo-server
+              protocol: TCP
+          readinessProbe:
+            failureThreshold: 3
+            initialDelaySeconds: 10
+            periodSeconds: 10
+            successThreshold: 1
+            tcpSocket:
+              port: 8081
+            timeoutSeconds: 1
+          resources: {}
+          volumeMounts:
+            - mountPath: /app/config/gpg/source
+              name: gpg-keys
+            - mountPath: /app/config/gpg/keys
+              name: gpg-keyring
+            - mountPath: /app/config/ssh
+              name: ssh-known-hosts
+            - mountPath: /app/config/tls
+              name: tls-certs
+            - mountPath: /app/config/reposerver/tls
+              name: argocd-repo-server-tls
+            - mountPath: /tmp
+              name: tmp-dir
+            - mountPath: /helm-working-dir
+              name: helm-working-dir
+            - mountPath: /home/argocd/cmp-server/plugins
+              name: plugins
+      initContainers:
+        - command:
+            - cp
+            - -n
+            - /usr/local/bin/argocd
+            - /var/run/argocd/argocd-cmp-server
+          image: quay.io/argoproj/argocd:v2.3.4
+          imagePullPolicy: IfNotPresent
+          name: copyutil
+          resources: {}
+          volumeMounts:
+            - mountPath: /var/run/argocd
+              name: var-files
+      serviceAccountName: yargo-cd-argocd-repo-server
+      volumes:
+        - configMap:
+            name: argocd-gpg-keys-cm
+          name: gpg-keys
+        - emptyDir: {}
+          name: gpg-keyring
+        - configMap:
+            name: argocd-ssh-known-hosts-cm
+          name: ssh-known-hosts
+        - configMap:
+            name: argocd-tls-certs-cm
+          name: tls-certs
+        - emptyDir: {}
+          name: helm-working-dir
+        - name: argocd-repo-server-tls
+          secret:
+            items:
+              - key: tls.crt
+                path: tls.crt
+              - key: tls.key
+                path: tls.key
+              - key: ca.crt
+                path: ca.crt
+            optional: true
+            secretName: argocd-repo-server-tls
+        - emptyDir: {}
+          name: tmp-dir
+        - emptyDir: {}
+          name: var-files
+        - emptyDir: {}
+          name: plugins
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    app.kubernetes.io/component: server
+    app.kubernetes.io/instance: yargo-cd
+    app.kubernetes.io/managed-by: Helm
+    app.kubernetes.io/name: argocd-server
+    app.kubernetes.io/part-of: argocd
+    app.kubernetes.io/version: v2.3.4
+    helm.sh/chart: argo-cd-4.6.4
+  name: yargo-cd-argocd-server
+spec:
+  replicas: 1
+  revisionHistoryLimit: 5
+  selector:
+    matchLabels:
+      app.kubernetes.io/instance: yargo-cd
+      app.kubernetes.io/name: argocd-server
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/component: server
+        app.kubernetes.io/instance: yargo-cd
+        app.kubernetes.io/managed-by: Helm
+        app.kubernetes.io/name: argocd-server
+        app.kubernetes.io/part-of: argocd
+        app.kubernetes.io/version: v2.3.4
+        helm.sh/chart: argo-cd-4.6.4
+    spec:
+      containers:
+        - command:
+            - argocd-server
+            - --staticassets
+            - /shared/app
+            - --repo-server
+            - yargo-cd-argocd-repo-server:8081
+            - --dex-server
+            - http://yargo-cd-argocd-dex-server:5556
+            - --logformat
+            - text
+            - --loglevel
+            - info
+            - --redis
+            - yargo-cd-argocd-redis:6379
+          image: quay.io/argoproj/argocd:v2.3.4
+          imagePullPolicy: IfNotPresent
+          livenessProbe:
+            failureThreshold: 3
+            httpGet:
+              path: /healthz
+              port: 8080
+            initialDelaySeconds: 10
+            periodSeconds: 10
+            successThreshold: 1
+            timeoutSeconds: 1
+          name: server
+          ports:
+            - containerPort: 8080
+              name: server
+              protocol: TCP
+          readinessProbe:
+            failureThreshold: 3
+            httpGet:
+              path: /healthz
+              port: 8080
+            initialDelaySeconds: 10
+            periodSeconds: 10
+            successThreshold: 1
+            timeoutSeconds: 1
+          resources: {}
+          volumeMounts:
+            - mountPath: /app/config/ssh
+              name: ssh-known-hosts
+            - mountPath: /app/config/tls
+              name: tls-certs
+            - mountPath: /app/config/server/tls
+              name: argocd-repo-server-tls
+            - mountPath: /home/argocd
+              name: plugins-home
+            - mountPath: /tmp
+              name: tmp-dir
+      serviceAccountName: argocd-server
+      volumes:
+        - emptyDir: {}
+          name: tmp-dir
+        - configMap:
+            name: argocd-ssh-known-hosts-cm
+          name: ssh-known-hosts
+        - configMap:
+            name: argocd-tls-certs-cm
+          name: tls-certs
+        - name: argocd-repo-server-tls
+          secret:
+            items:
+              - key: tls.crt
+                path: tls.crt
+              - key: tls.key
+                path: tls.key
+              - key: ca.crt
+                path: ca.crt
+            optional: true
+            secretName: argocd-repo-server-tls
+        - emptyDir: {}
+          name: plugins-home
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    app.kubernetes.io/component: dex-server
+    app.kubernetes.io/instance: yargo-cd
+    app.kubernetes.io/managed-by: Helm
+    app.kubernetes.io/name: argocd-dex-server
+    app.kubernetes.io/part-of: argocd
+    app.kubernetes.io/version: v2.30.2
+    helm.sh/chart: argo-cd-4.6.4
+  name: yargo-cd-argocd-dex-server
+spec:
+  selector:
+    matchLabels:
+      app.kubernetes.io/instance: yargo-cd
+      app.kubernetes.io/name: argocd-dex-server
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/component: dex-server
+        app.kubernetes.io/instance: yargo-cd
+        app.kubernetes.io/managed-by: Helm
+        app.kubernetes.io/name: argocd-dex-server
+        app.kubernetes.io/part-of: argocd
+        app.kubernetes.io/version: v2.30.2
+        helm.sh/chart: argo-cd-4.6.4
+    spec:
+      containers:
+        - command:
+            - /shared/argocd-dex
+            - rundex
+          image: ghcr.io/dexidp/dex:v2.30.2
+          imagePullPolicy: IfNotPresent
+          name: dex-server
+          ports:
+            - containerPort: 5556
+              name: http
+              protocol: TCP
+            - containerPort: 5557
+              name: grpc
+              protocol: TCP
+            - containerPort: 5558
+              name: metrics
+              protocol: TCP
+          resources: {}
+          volumeMounts:
+            - mountPath: /tmp
+              name: tmp-dir
+            - mountPath: /shared
+              name: static-files
+      initContainers:
+        - command:
+            - cp
+            - -n
+            - /usr/local/bin/argocd
+            - /shared/argocd-dex
+          image: quay.io/argoproj/argocd:v2.3.4
+          imagePullPolicy: IfNotPresent
+          name: copyutil
+          resources: {}
+          volumeMounts:
+            - mountPath: /shared
+              name: static-files
+      serviceAccountName: argocd-dex-server
+      volumes:
+        - emptyDir: {}
+          name: tmp-dir
+        - emptyDir: {}
+          name: static-files
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    app.kubernetes.io/component: redis
+    app.kubernetes.io/instance: yargo-cd
+    app.kubernetes.io/managed-by: Helm
+    app.kubernetes.io/name: argocd-redis
+    app.kubernetes.io/part-of: argocd
+    app.kubernetes.io/version: 6.2.6-alpine
+    helm.sh/chart: argo-cd-4.6.4
+  name: yargo-cd-argocd-redis
+spec:
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: argocd-redis
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/component: redis
+        app.kubernetes.io/instance: yargo-cd
+        app.kubernetes.io/managed-by: Helm
+        app.kubernetes.io/name: argocd-redis
+        app.kubernetes.io/part-of: argocd
+        app.kubernetes.io/version: 6.2.6-alpine
+        helm.sh/chart: argo-cd-4.6.4
+    spec:
+      automountServiceAccountToken: false
+      containers:
+        - args:
+            - --save
+            - ""
+            - --appendonly
+            - "no"
+          image: redis:6.2.6-alpine
+          imagePullPolicy: IfNotPresent
+          name: yargo-cd-argocd-redis
+          ports:
+            - containerPort: 6379
+              name: redis
+          resources: {}
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 999
+      serviceAccountName: default
+---
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  labels:
+    app.kubernetes.io/component: application-controller
+    app.kubernetes.io/instance: yargo-cd
+    app.kubernetes.io/managed-by: Helm
+    app.kubernetes.io/name: argocd-application-controller
+    app.kubernetes.io/part-of: argocd
+    app.kubernetes.io/version: v2.3.4
+    helm.sh/chart: argo-cd-4.6.4
+  name: yargo-cd-argocd-application-controller
+spec:
+  replicas: 1
+  revisionHistoryLimit: 5
+  selector:
+    matchLabels:
+      app.kubernetes.io/instance: yargo-cd
+      app.kubernetes.io/name: argocd-application-controller
+  serviceName: yargo-cd-argocd-application-controller
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/component: application-controller
+        app.kubernetes.io/instance: yargo-cd
+        app.kubernetes.io/managed-by: Helm
+        app.kubernetes.io/name: argocd-application-controller
+        app.kubernetes.io/part-of: argocd
+        app.kubernetes.io/version: v2.3.4
+        helm.sh/chart: argo-cd-4.6.4
+    spec:
+      containers:
+        - command:
+            - argocd-application-controller
+            - --status-processors
+            - "20"
+            - --operation-processors
+            - "10"
+            - --app-resync
+            - "180"
+            - --self-heal-timeout-seconds
+            - "5"
+            - --repo-server
+            - yargo-cd-argocd-repo-server:8081
+            - --repo-server-timeout-seconds
+            - "60"
+            - --logformat
+            - text
+            - --loglevel
+            - info
+            - --redis
+            - yargo-cd-argocd-redis:6379
+          image: quay.io/argoproj/argocd:v2.3.4
+          imagePullPolicy: IfNotPresent
+          livenessProbe:
+            failureThreshold: 3
+            httpGet:
+              path: /healthz
+              port: 8082
+            initialDelaySeconds: 10
+            periodSeconds: 10
+            successThreshold: 1
+            timeoutSeconds: 1
+          name: application-controller
+          ports:
+            - containerPort: 8082
+              name: controller
+              protocol: TCP
+          readinessProbe:
+            failureThreshold: 3
+            initialDelaySeconds: 10
+            periodSeconds: 10
+            successThreshold: 1
+            tcpSocket:
+              port: 8082
+            timeoutSeconds: 1
+          resources: {}
+          volumeMounts:
+            - mountPath: /home/argocd
+              name: argocd-home
+            - mountPath: /app/config/controller/tls
+              name: argocd-repo-server-tls
+          workingDir: /home/argocd
+      serviceAccountName: argocd-application-controller
+      volumes:
+        - emptyDir: {}
+          name: argocd-home
+        - name: argocd-repo-server-tls
+          secret:
+            items:
+              - key: tls.crt
+                path: tls.crt
+              - key: tls.key
+                path: tls.key
+              - key: ca.crt
+                path: ca.crt
+            optional: true
+            secretName: argocd-repo-server-tls
+---
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  labels:
+    app.kubernetes.io/component: application-controller
+    app.kubernetes.io/instance: yargo-cd
+    app.kubernetes.io/managed-by: Helm
+    app.kubernetes.io/name: argocd-application-controller
+    app.kubernetes.io/part-of: argocd
+    helm.sh/chart: argo-cd-4.6.4
+  name: argocd-application-controller
+automountServiceAccountToken: true
+---
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  labels:
+    app.kubernetes.io/component: applicationset-controller
+    app.kubernetes.io/instance: yargo-cd
+    app.kubernetes.io/managed-by: Helm
+    app.kubernetes.io/name: argocd-applicationset-controller
+    app.kubernetes.io/part-of: argocd
+    helm.sh/chart: argo-cd-4.6.4
+  name: yargo-cd-argocd-applicationset-controller
+---
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  labels:
+    app.kubernetes.io/component: notifications-controller
+    app.kubernetes.io/instance: yargo-cd
+    app.kubernetes.io/managed-by: Helm
+    app.kubernetes.io/name: argocd-notifications-controller
+    app.kubernetes.io/part-of: argocd
+    helm.sh/chart: argo-cd-4.6.4
+  name: argocd-notifications-controller
+---
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  labels:
+    app.kubernetes.io/component: repo-server
+    app.kubernetes.io/instance: yargo-cd
+    app.kubernetes.io/managed-by: Helm
+    app.kubernetes.io/name: argocd-repo-server
+    app.kubernetes.io/part-of: argocd
+    helm.sh/chart: argo-cd-4.6.4
+  name: yargo-cd-argocd-repo-server
+automountServiceAccountToken: true
+---
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  labels:
+    app.kubernetes.io/component: server
+    app.kubernetes.io/instance: yargo-cd
+    app.kubernetes.io/managed-by: Helm
+    app.kubernetes.io/name: argocd-server
+    app.kubernetes.io/part-of: argocd
+    helm.sh/chart: argo-cd-4.6.4
+  name: argocd-server
+automountServiceAccountToken: true
+---
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  labels:
+    app.kubernetes.io/component: dex-server
+    app.kubernetes.io/instance: yargo-cd
+    app.kubernetes.io/managed-by: Helm
+    app.kubernetes.io/name: argocd-dex-server
+    app.kubernetes.io/part-of: argocd
+    helm.sh/chart: argo-cd-4.6.4
+  name: argocd-dex-server
+automountServiceAccountToken: true
+---
+apiVersion: v1
+kind: Secret
+metadata:
+  labels:
+    app.kubernetes.io/component: server
+    app.kubernetes.io/instance: yargo-cd
+    app.kubernetes.io/managed-by: Helm
+    app.kubernetes.io/name: argocd-secret
+    app.kubernetes.io/part-of: argocd
+    helm.sh/chart: argo-cd-4.6.4
+  name: argocd-secret
+type: Opaque
+---
+apiVersion: v1
+kind: Secret
+metadata:
+  labels:
+    app.kubernetes.io/component: notifications-controller
+    app.kubernetes.io/instance: yargo-cd
+    app.kubernetes.io/managed-by: Helm
+    app.kubernetes.io/name: argocd-notifications-controller
+    app.kubernetes.io/part-of: argocd
+    helm.sh/chart: argo-cd-4.6.4
+  name: yargo-cd-argocd-notifications-controller-secret
+type: Opaque
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  labels:
+    app.kubernetes.io/component: server
+    app.kubernetes.io/instance: yargo-cd
+    app.kubernetes.io/managed-by: Helm
+    app.kubernetes.io/name: argocd-cm
+    app.kubernetes.io/part-of: argocd
+    helm.sh/chart: argo-cd-4.6.4
+  name: argocd-cm
+data:
+  application.instanceLabelKey: argocd.argoproj.io/instance
+  url: ""
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  labels:
+    app.kubernetes.io/instance: yargo-cd
+    app.kubernetes.io/managed-by: Helm
+    app.kubernetes.io/name: argocd-gpg-keys-cm
+    app.kubernetes.io/part-of: argocd
+    helm.sh/chart: argo-cd-4.6.4
+  name: argocd-gpg-keys-cm
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  labels:
+    app.kubernetes.io/component: server
+    app.kubernetes.io/instance: yargo-cd
+    app.kubernetes.io/managed-by: Helm
+    app.kubernetes.io/name: argocd-rbac-cm
+    app.kubernetes.io/part-of: argocd
+    helm.sh/chart: argo-cd-4.6.4
+  name: argocd-rbac-cm
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  labels:
+    app.kubernetes.io/component: server
+    app.kubernetes.io/instance: yargo-cd
+    app.kubernetes.io/managed-by: Helm
+    app.kubernetes.io/name: argocd-ssh-known-hosts-cm
+    app.kubernetes.io/part-of: argocd
+    helm.sh/chart: argo-cd-4.6.4
+  name: argocd-ssh-known-hosts-cm
+data:
+  ssh_known_hosts: |
+    bitbucket.org ssh-rsa AAAAB3NzaC1yc2EAAAABIwAAAQEAubiN81eDcafrgMeLzaFPsw2kNvEcqTKl/VqLat/MaB33pZy0y3rJZtnqwR2qOOvbwKZYKiEO1O6VqNEBxKvJJelCq0dTXWT5pbO2gDXC6h6QDXCaHo6pOHGPUy+YBaGQRGuSusMEASYiWunYN0vCAI8QaXnWMXNMdFP3jHAJH0eDsoiGnLPBlBp4TNm6rYI74nMzgz3B9IikW4WVK+dc8KZJZWYjAuORU3jc1c/NPskD2ASinf8v3xnfXeukU0sJ5N6m5E8VLjObPEO+mN2t/FZTMZLiFqPWc/ALSqnMnnhwrNi2rbfg/rd/IpL8Le3pSBne8+seeFVBoGqzHM9yXw==
+    github.com ecdsa-sha2-nistp256 AAAAE2VjZHNhLXNoYTItbmlzdHAyNTYAAAAIbmlzdHAyNTYAAABBBEmKSENjQEezOmxkZMy7opKgwFB9nkt5YRrYMjNuG5N87uRgg6CLrbo5wAdT/y6v0mKV0U2w0WZ2YB/++Tpockg=
+    github.com ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIOMqqnkVzrm0SdG6UOoqKLsabgH5C9okWi0dh2l9GKJl
+    github.com ssh-rsa AAAAB3NzaC1yc2EAAAABIwAAAQEAq2A7hRGmdnm9tUDbO9IDSwBK6TbQa+PXYPCPy6rbTrTtw7PHkccKrpp0yVhp5HdEIcKr6pLlVDBfOLX9QUsyCOV0wzfjIJNlGEYsdlLJizHhbn2mUjvSAHQqZETYP81eFzLQNnPHt4EVVUh7VfDESU84KezmD5QlWpXLmvU31/yMf+Se8xhHTvKSCZIFImWwoG6mbUoWf9nzpIoaSjB+weqqUUmpaaasXVal72J+UX2B+2RPW3RcT0eOzQgqlJL3RKrTJvdsjE3JEAvGq3lGHSZXy28G3skua2SmVi/w4yCE6gbODqnTWlg7+wC604ydGXA8VJiS5ap43JXiUFFAaQ==
+    gitlab.com ecdsa-sha2-nistp256 AAAAE2VjZHNhLXNoYTItbmlzdHAyNTYAAAAIbmlzdHAyNTYAAABBBFSMqzJeV9rUzU4kWitGjeR4PWSa29SPqJ1fVkhtj3Hw9xjLVXVYrU9QlYWrOLXBpQ6KWjbjTDTdDkoohFzgbEY=
+    gitlab.com ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIAfuCHKVTjquxvt6CM6tdG4SLp1Btn/nOeHHE5UOzRdf
+    gitlab.com ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABAQCsj2bNKTBSpIYDEGk9KxsGh3mySTRgMtXL583qmBpzeQ+jqCMRgBqB98u3z++J1sKlXHWfM9dyhSevkMwSbhoR8XIq/U0tCNyokEi/ueaBMCvbcTHhO7FcwzY92WK4Yt0aGROY5qX2UKSeOvuP4D6TPqKF1onrSzH9bx9XUf2lEdWT/ia1NEKjunUqu1xOB/StKDHMoX4/OKyIzuS0q/T1zOATthvasJFoPrAjkohTyaDUz2LN5JoH839hViyEG82yB+MjcFV5MU3N1l1QL3cVUCh93xSaua1N85qivl+siMkPGbO5xR/En4iEY6K2XPASUEMaieWVNTRCtJ4S8H+9
+    ssh.dev.azure.com ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABAQC7Hr1oTWqNqOlzGJOfGJ4NakVyIzf1rXYd4d7wo6jBlkLvCA4odBlL0mDUyZ0/QUfTTqeu+tm22gOsv+VrVTMk6vwRU75gY/y9ut5Mb3bR5BV58dKXyq9A9UeB5Cakehn5Zgm6x1mKoVyf+FFn26iYqXJRgzIZZcZ5V6hrE0Qg39kZm4az48o0AUbf6Sp4SLdvnuMa2sVNwHBboS7EJkm57XQPVU3/QpyNLHbWDdzwtrlS+ez30S3AdYhLKEOxAG8weOnyrtLJAUen9mTkol8oII1edf7mWWbWVf0nBmly21+nZcmCTISQBtdcyPaEno7fFQMDD26/s0lfKob4Kw8H
+    vs-ssh.visualstudio.com ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABAQC7Hr1oTWqNqOlzGJOfGJ4NakVyIzf1rXYd4d7wo6jBlkLvCA4odBlL0mDUyZ0/QUfTTqeu+tm22gOsv+VrVTMk6vwRU75gY/y9ut5Mb3bR5BV58dKXyq9A9UeB5Cakehn5Zgm6x1mKoVyf+FFn26iYqXJRgzIZZcZ5V6hrE0Qg39kZm4az48o0AUbf6Sp4SLdvnuMa2sVNwHBboS7EJkm57XQPVU3/QpyNLHbWDdzwtrlS+ez30S3AdYhLKEOxAG8weOnyrtLJAUen9mTkol8oII1edf7mWWbWVf0nBmly21+nZcmCTISQBtdcyPaEno7fFQMDD26/s0lfKob4Kw8H
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  labels:
+    app.kubernetes.io/component: server
+    app.kubernetes.io/instance: yargo-cd
+    app.kubernetes.io/managed-by: Helm
+    app.kubernetes.io/name: argocd-tls-certs-cm
+    app.kubernetes.io/part-of: argocd
+    helm.sh/chart: argo-cd-4.6.4
+  name: argocd-tls-certs-cm
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  labels:
+    app.kubernetes.io/component: notifications-controller
+    app.kubernetes.io/instance: yargo-cd
+    app.kubernetes.io/managed-by: Helm
+    app.kubernetes.io/name: argocd-notifications-controller
+    app.kubernetes.io/part-of: argocd
+    helm.sh/chart: argo-cd-4.6.4
+  name: yargo-cd-argocd-notifications-controller-cm
+data:
+  context: |
+    argocdUrl:
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  labels:
+    app.kubernetes.io/component: application-controller
+    app.kubernetes.io/instance: yargo-cd
+    app.kubernetes.io/managed-by: Helm
+    app.kubernetes.io/name: argocd-application-controller
+    app.kubernetes.io/part-of: argocd
+    helm.sh/chart: argo-cd-4.6.4
+  name: yargo-cd-argocd-application-controller
+rules:
+  - apiGroups:
+      - "*"
+    resources:
+      - "*"
+    verbs:
+      - "*"
+  - nonResourceURLs:
+      - "*"
+    verbs:
+      - "*"
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  labels:
+    app.kubernetes.io/component: server
+    app.kubernetes.io/instance: yargo-cd
+    app.kubernetes.io/managed-by: Helm
+    app.kubernetes.io/name: argocd-server
+    app.kubernetes.io/part-of: argocd
+    helm.sh/chart: argo-cd-4.6.4
+  name: yargo-cd-argocd-server
+rules:
+  - apiGroups:
+      - "*"
+    resources:
+      - "*"
+    verbs:
+      - delete
+      - get
+      - patch
+  - apiGroups:
+      - ""
+    resources:
+      - events
+    verbs:
+      - list
+  - apiGroups:
+      - ""
+    resources:
+      - pods
+      - pods/log
+    verbs:
+      - get
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  labels:
+    app.kubernetes.io/component: application-controller
+    app.kubernetes.io/instance: yargo-cd
+    app.kubernetes.io/managed-by: Helm
+    app.kubernetes.io/name: argocd-application-controller
+    app.kubernetes.io/part-of: argocd
+    helm.sh/chart: argo-cd-4.6.4
+  name: yargo-cd-argocd-application-controller
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: yargo-cd-argocd-application-controller
+subjects:
+  - kind: ServiceAccount
+    name: argocd-application-controller
+    namespace: default
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  labels:
+    app.kubernetes.io/component: server
+    app.kubernetes.io/instance: yargo-cd
+    app.kubernetes.io/managed-by: Helm
+    app.kubernetes.io/name: argocd-server
+    app.kubernetes.io/part-of: argocd
+    helm.sh/chart: argo-cd-4.6.4
+  name: yargo-cd-argocd-server
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: yargo-cd-argocd-server
+subjects:
+  - kind: ServiceAccount
+    name: argocd-server
+    namespace: default
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: Role
+metadata:
+  labels:
+    app.kubernetes.io/component: application-controller
+    app.kubernetes.io/instance: yargo-cd
+    app.kubernetes.io/managed-by: Helm
+    app.kubernetes.io/name: argocd-application-controller
+    app.kubernetes.io/part-of: argocd
+    helm.sh/chart: argo-cd-4.6.4
+  name: yargo-cd-argocd-application-controller
+rules:
+  - apiGroups:
+      - ""
+    resources:
+      - secrets
+      - configmaps
+    verbs:
+      - get
+      - list
+      - watch
+  - apiGroups:
+      - argoproj.io
+    resources:
+      - applications
+      - appprojects
+    verbs:
+      - create
+      - get
+      - list
+      - watch
+      - update
+      - patch
+      - delete
+  - apiGroups:
+      - ""
+    resources:
+      - events
+    verbs:
+      - create
+      - list
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: Role
+metadata:
+  labels:
+    app.kubernetes.io/component: applicationset-controller
+    app.kubernetes.io/instance: yargo-cd
+    app.kubernetes.io/managed-by: Helm
+    app.kubernetes.io/name: argocd-applicationset-controller
+    app.kubernetes.io/part-of: argocd
+    helm.sh/chart: argo-cd-4.6.4
+  name: yargo-cd-argocd-applicationset-controller
+rules:
+  - apiGroups:
+      - argoproj.io
+    resources:
+      - applications
+      - appprojects
+      - applicationsets
+      - applicationsets/finalizers
+    verbs:
+      - create
+      - delete
+      - get
+      - list
+      - patch
+      - update
+      - watch
+  - apiGroups:
+      - argoproj.io
+    resources:
+      - applicationsets/status
+    verbs:
+      - get
+      - patch
+      - update
+  - apiGroups:
+      - ""
+    resources:
+      - events
+    verbs:
+      - create
+      - delete
+      - get
+      - list
+      - patch
+      - update
+      - watch
+  - apiGroups:
+      - ""
+    resources:
+      - secrets
+    verbs:
+      - get
+      - list
+      - watch
+  - apiGroups:
+      - ""
+    resources:
+      - configmaps
+    verbs:
+      - create
+      - delete
+      - get
+      - list
+      - patch
+      - update
+      - watch
+  - apiGroups:
+      - apps
+      - extensions
+    resources:
+      - deployments
+    verbs:
+      - get
+      - list
+      - watch
+  - apiGroups:
+      - coordination.k8s.io
+    resources:
+      - leases
+    verbs:
+      - create
+      - delete
+      - get
+      - list
+      - patch
+      - update
+      - watch
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: Role
+metadata:
+  labels:
+    app.kubernetes.io/component: notifications-controller
+    app.kubernetes.io/instance: yargo-cd
+    app.kubernetes.io/managed-by: Helm
+    app.kubernetes.io/name: argocd-notifications-controller
+    app.kubernetes.io/part-of: argocd
+    helm.sh/chart: argo-cd-4.6.4
+  name: yargo-cd-argocd-notifications-controller
+rules:
+  - apiGroups:
+      - argoproj.io
+    resources:
+      - applications
+      - appprojects
+    verbs:
+      - get
+      - list
+      - watch
+      - update
+      - patch
+  - apiGroups:
+      - ""
+    resources:
+      - configmaps
+      - secrets
+    verbs:
+      - list
+      - watch
+  - apiGroups:
+      - ""
+    resourceNames:
+      - yargo-cd-argocd-notifications-controller-cm
+    resources:
+      - configmaps
+    verbs:
+      - get
+  - apiGroups:
+      - ""
+    resourceNames:
+      - yargo-cd-argocd-notifications-controller-secret
+    resources:
+      - secrets
+    verbs:
+      - get
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: Role
+metadata:
+  labels:
+    app.kubernetes.io/component: repo-server
+    app.kubernetes.io/instance: yargo-cd
+    app.kubernetes.io/managed-by: Helm
+    app.kubernetes.io/name: argocd-repo-server
+    app.kubernetes.io/part-of: argocd
+    helm.sh/chart: argo-cd-4.6.4
+  name: yargo-cd-argocd-repo-server
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: Role
+metadata:
+  labels:
+    app.kubernetes.io/component: server
+    app.kubernetes.io/instance: yargo-cd
+    app.kubernetes.io/managed-by: Helm
+    app.kubernetes.io/name: argocd-server
+    app.kubernetes.io/part-of: argocd
+    helm.sh/chart: argo-cd-4.6.4
+  name: yargo-cd-argocd-server
+rules:
+  - apiGroups:
+      - ""
+    resources:
+      - secrets
+      - configmaps
+    verbs:
+      - create
+      - get
+      - list
+      - watch
+      - update
+      - patch
+      - delete
+  - apiGroups:
+      - argoproj.io
+    resources:
+      - applications
+      - appprojects
+    verbs:
+      - create
+      - get
+      - list
+      - watch
+      - update
+      - delete
+      - patch
+  - apiGroups:
+      - ""
+    resources:
+      - events
+    verbs:
+      - create
+      - list
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: Role
+metadata:
+  labels:
+    app.kubernetes.io/component: dex-server
+    app.kubernetes.io/instance: yargo-cd
+    app.kubernetes.io/managed-by: Helm
+    app.kubernetes.io/name: argocd-dex-server
+    app.kubernetes.io/part-of: argocd
+    helm.sh/chart: argo-cd-4.6.4
+  name: yargo-cd-argocd-dex-server
+rules:
+  - apiGroups:
+      - ""
+    resources:
+      - secrets
+      - configmaps
+    verbs:
+      - get
+      - list
+      - watch
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  labels:
+    app.kubernetes.io/component: application-controller
+    app.kubernetes.io/instance: yargo-cd
+    app.kubernetes.io/managed-by: Helm
+    app.kubernetes.io/name: argocd-application-controller
+    app.kubernetes.io/part-of: argocd
+    helm.sh/chart: argo-cd-4.6.4
+  name: yargo-cd-argocd-application-controller
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: Role
+  name: yargo-cd-argocd-application-controller
+subjects:
+  - kind: ServiceAccount
+    name: argocd-application-controller
+    namespace: default
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  labels:
+    app.kubernetes.io/component: applicationset-controller
+    app.kubernetes.io/instance: yargo-cd
+    app.kubernetes.io/managed-by: Helm
+    app.kubernetes.io/name: argocd-applicationset-controller
+    app.kubernetes.io/part-of: argocd
+    helm.sh/chart: argo-cd-4.6.4
+  name: yargo-cd-argocd-applicationset-controller
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: Role
+  name: yargo-cd-argocd-applicationset-controller
+subjects:
+  - kind: ServiceAccount
+    name: yargo-cd-argocd-applicationset-controller
+    namespace: default
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  labels:
+    app.kubernetes.io/component: notifications-controller
+    app.kubernetes.io/instance: yargo-cd
+    app.kubernetes.io/managed-by: Helm
+    app.kubernetes.io/name: argocd-notifications-controller
+    app.kubernetes.io/part-of: argocd
+    helm.sh/chart: argo-cd-4.6.4
+  name: yargo-cd-argocd-notifications-controller
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: Role
+  name: yargo-cd-argocd-notifications-controller
+subjects:
+  - kind: ServiceAccount
+    name: argocd-notifications-controller
+    namespace: default
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  labels:
+    app.kubernetes.io/component: repo-server
+    app.kubernetes.io/instance: yargo-cd
+    app.kubernetes.io/managed-by: Helm
+    app.kubernetes.io/name: argocd-repo-server
+    app.kubernetes.io/part-of: argocd
+    helm.sh/chart: argo-cd-4.6.4
+  name: yargo-cd-argocd-repo-server
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: Role
+  name: yargo-cd-argocd-repo-server
+subjects:
+  - kind: ServiceAccount
+    name: yargo-cd-argocd-repo-server
+    namespace: default
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  labels:
+    app.kubernetes.io/component: server
+    app.kubernetes.io/instance: yargo-cd
+    app.kubernetes.io/managed-by: Helm
+    app.kubernetes.io/name: argocd-server
+    app.kubernetes.io/part-of: argocd
+    helm.sh/chart: argo-cd-4.6.4
+  name: yargo-cd-argocd-server
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: Role
+  name: yargo-cd-argocd-server
+subjects:
+  - kind: ServiceAccount
+    name: argocd-server
+    namespace: default
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  labels:
+    app.kubernetes.io/component: dex-server
+    app.kubernetes.io/instance: yargo-cd
+    app.kubernetes.io/managed-by: Helm
+    app.kubernetes.io/name: argocd-dex-server
+    app.kubernetes.io/part-of: argocd
+    helm.sh/chart: argo-cd-4.6.4
+  name: yargo-cd-argocd-dex-server
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: Role
+  name: yargo-cd-argocd-dex-server
+subjects:
+  - kind: ServiceAccount
+    name: argocd-dex-server
+    namespace: default
+---
+apiVersion: v1
+kind: Service
+metadata:
+  labels:
+    app.kubernetes.io/component: application-controller
+    app.kubernetes.io/instance: yargo-cd
+    app.kubernetes.io/managed-by: Helm
+    app.kubernetes.io/name: argocd-application-controller
+    app.kubernetes.io/part-of: argocd
+    helm.sh/chart: argo-cd-4.6.4
+  name: yargo-cd-argocd-application-controller
+spec:
+  ports:
+    - name: https-controller
+      port: 8082
+      targetPort: 8082
+  selector:
+    app.kubernetes.io/instance: yargo-cd
+    app.kubernetes.io/name: argocd-application-controller
+---
+apiVersion: v1
+kind: Service
+metadata:
+  labels:
+    app.kubernetes.io/component: applicationset-controller
+    app.kubernetes.io/instance: yargo-cd
+    app.kubernetes.io/managed-by: Helm
+    app.kubernetes.io/name: argocd-applicationset-controller
+    app.kubernetes.io/part-of: argocd
+    helm.sh/chart: argo-cd-4.6.4
+  name: yargo-cd-argocd-applicationset-controller
+spec:
+  ports:
+    - name: webhook
+      port: 7000
+      targetPort: webhook
+  selector:
+    app.kubernetes.io/instance: yargo-cd
+    app.kubernetes.io/name: argocd-applicationset-controller
+---
+apiVersion: v1
+kind: Service
+metadata:
+  labels:
+    app.kubernetes.io/component: repo-server
+    app.kubernetes.io/instance: yargo-cd
+    app.kubernetes.io/managed-by: Helm
+    app.kubernetes.io/name: argocd-repo-server
+    app.kubernetes.io/part-of: argocd
+    helm.sh/chart: argo-cd-4.6.4
+  name: yargo-cd-argocd-repo-server
+spec:
+  ports:
+    - name: https-repo-server
+      port: 8081
+      protocol: TCP
+      targetPort: repo-server
+  selector:
+    app.kubernetes.io/instance: yargo-cd
+    app.kubernetes.io/name: argocd-repo-server
+---
+apiVersion: v1
+kind: Service
+metadata:
+  labels:
+    app.kubernetes.io/component: server
+    app.kubernetes.io/instance: yargo-cd
+    app.kubernetes.io/managed-by: Helm
+    app.kubernetes.io/name: argocd-server
+    app.kubernetes.io/part-of: argocd
+    helm.sh/chart: argo-cd-4.6.4
+  name: yargo-cd-argocd-server
+spec:
+  ports:
+    - name: http
+      nodePort: 30080
+      port: 80
+      protocol: TCP
+      targetPort: server
+    - name: https
+      nodePort: 30443
+      port: 443
+      protocol: TCP
+      targetPort: server
+  selector:
+    app.kubernetes.io/instance: yargo-cd
+    app.kubernetes.io/name: argocd-server
+  type: NodePort
+---
+apiVersion: v1
+kind: Service
+metadata:
+  labels:
+    app.kubernetes.io/component: dex-server
+    app.kubernetes.io/instance: yargo-cd
+    app.kubernetes.io/managed-by: Helm
+    app.kubernetes.io/name: argocd-dex-server
+    app.kubernetes.io/part-of: argocd
+    helm.sh/chart: argo-cd-4.6.4
+  name: yargo-cd-argocd-dex-server
+spec:
+  ports:
+    - name: http
+      port: 5556
+      protocol: TCP
+      targetPort: http
+    - name: grpc
+      port: 5557
+      protocol: TCP
+      targetPort: grpc
+  selector:
+    app.kubernetes.io/instance: yargo-cd
+    app.kubernetes.io/name: argocd-dex-server
+---
+apiVersion: v1
+kind: Service
+metadata:
+  labels:
+    app.kubernetes.io/component: redis
+    app.kubernetes.io/instance: yargo-cd
+    app.kubernetes.io/managed-by: Helm
+    app.kubernetes.io/name: argocd-redis
+    app.kubernetes.io/part-of: argocd
+    helm.sh/chart: argo-cd-4.6.4
+  name: yargo-cd-argocd-redis
+spec:
+  ports:
+    - name: redis
+      port: 6379
+      targetPort: 6379
+  selector:
+    app.kubernetes.io/instance: yargo-cd
+    app.kubernetes.io/name: argocd-redis
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    app.kubernetes.io/component: applicationset-controller
+    app.kubernetes.io/instance: yargo-cd
+    app.kubernetes.io/managed-by: Helm
+    app.kubernetes.io/name: argocd-applicationset-controller
+    app.kubernetes.io/part-of: argocd
+    app.kubernetes.io/version: v0.4.1
+    helm.sh/chart: argo-cd-4.6.4
+  name: yargo-cd-argocd-applicationset-controller
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app.kubernetes.io/instance: yargo-cd
+      app.kubernetes.io/name: argocd-applicationset-controller
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/component: applicationset-controller
+        app.kubernetes.io/instance: yargo-cd
+        app.kubernetes.io/managed-by: Helm
+        app.kubernetes.io/name: argocd-applicationset-controller
+        app.kubernetes.io/part-of: argocd
+        app.kubernetes.io/version: v0.4.1
+        helm.sh/chart: argo-cd-4.6.4
+    spec:
+      containers:
+        - command:
+            - applicationset-controller
+            - --metrics-addr=:8080
+            - --probe-addr=:8081
+            - --namespace=default
+            - --argocd-repo-server=yargo-cd-argocd-repo-server:8081
+            - --policy=sync
+            - --debug=false
+            - --dry-run=false
+          image: quay.io/argoproj/argocd-applicationset:v0.4.1
+          imagePullPolicy: IfNotPresent
+          name: applicationset-controller
+          ports:
+            - containerPort: 8081
+              name: http
+              protocol: TCP
+            - containerPort: 8080
+              name: metrics
+              protocol: TCP
+            - containerPort: 7000
+              name: webhook
+              protocol: TCP
+          resources: {}
+          securityContext: {}
+          volumeMounts:
+            - mountPath: /tmp
+              name: tmp-dir
+            - mountPath: /app/config/ssh
+              name: ssh-known-hosts
+            - mountPath: /app/config/tls
+              name: tls-certs
+            - mountPath: /app/config/gpg/source
+              name: gpg-keys
+            - mountPath: /app/config/gpg/keys
+              name: gpg-keyring
+      securityContext: {}
+      serviceAccountName: yargo-cd-argocd-applicationset-controller
+      volumes:
+        - emptyDir: {}
+          name: tmp-dir
+        - configMap:
+            name: argocd-ssh-known-hosts-cm
+          name: ssh-known-hosts
+        - configMap:
+            name: argocd-tls-certs-cm
+          name: tls-certs
+        - configMap:
+            name: argocd-gpg-keys-cm
+          name: gpg-keys
+        - emptyDir: {}
+          name: gpg-keyring
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    app.kubernetes.io/component: notifications-controller
+    app.kubernetes.io/instance: yargo-cd
+    app.kubernetes.io/managed-by: Helm
+    app.kubernetes.io/name: argocd-notifications-controller
+    app.kubernetes.io/part-of: argocd
+    app.kubernetes.io/version: v2.3.4
+    helm.sh/chart: argo-cd-4.6.4
+  name: yargo-cd-argocd-notifications-controller
+spec:
+  selector:
+    matchLabels:
+      app.kubernetes.io/instance: yargo-cd
+      app.kubernetes.io/name: argocd-notifications-controller
+  strategy:
+    type: Recreate
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/component: notifications-controller
+        app.kubernetes.io/instance: yargo-cd
+        app.kubernetes.io/managed-by: Helm
+        app.kubernetes.io/name: argocd-notifications-controller
+        app.kubernetes.io/part-of: argocd
+        app.kubernetes.io/version: v2.3.4
+        helm.sh/chart: argo-cd-4.6.4
+    spec:
+      containers:
+        - command:
+            - argocd-notifications
+            - --loglevel=info
+            - --namespace=default
+            - --argocd-repo-server=yargo-cd-argocd-repo-server:8081
+            - --secret-name=yargo-cd-argocd-notifications-controller-secret
+            - --config-map-name=yargo-cd-argocd-notifications-controller-cm
+          image: quay.io/argoproj/argocd:v2.3.4
+          imagePullPolicy: IfNotPresent
+          name: notifications-controller
+          resources: {}
+          volumeMounts:
+            - mountPath: /app/config/tls
+              name: tls-certs
+            - mountPath: /app/config/reposerver/tls
+              name: argocd-repo-server-tls
+          workingDir: /app
+      securityContext:
+        runAsNonRoot: true
+      serviceAccountName: argocd-notifications-controller
+      volumes:
+        - configMap:
+            name: argocd-tls-certs-cm
+          name: tls-certs
+        - name: argocd-repo-server-tls
+          secret:
+            items:
+              - key: tls.crt
+                path: tls.crt
+              - key: tls.key
+                path: tls.key
+              - key: ca.crt
+                path: ca.crt
+            optional: true
+            secretName: argocd-repo-server-tls
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    app.kubernetes.io/component: repo-server
+    app.kubernetes.io/instance: yargo-cd
+    app.kubernetes.io/managed-by: Helm
+    app.kubernetes.io/name: argocd-repo-server
+    app.kubernetes.io/part-of: argocd
+    app.kubernetes.io/version: v2.3.4
+    helm.sh/chart: argo-cd-4.6.4
+  name: yargo-cd-argocd-repo-server
+spec:
+  replicas: 1
+  revisionHistoryLimit: 5
+  selector:
+    matchLabels:
+      app.kubernetes.io/instance: yargo-cd
+      app.kubernetes.io/name: argocd-repo-server
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/component: repo-server
+        app.kubernetes.io/instance: yargo-cd
+        app.kubernetes.io/managed-by: Helm
+        app.kubernetes.io/name: argocd-repo-server
+        app.kubernetes.io/part-of: argocd
+        app.kubernetes.io/version: v2.3.4
+        helm.sh/chart: argo-cd-4.6.4
+    spec:
+      containers:
+        - args:
+            - argocd-repo-server
+            - --redis
+            - yargo-cd-argocd-redis:6379
+            - --logformat
+            - text
+            - --loglevel
+            - info
+          command:
+            - entrypoint.sh
+          env:
+            - name: HELM_CACHE_HOME
+              value: /helm-working-dir
+            - name: HELM_CONFIG_HOME
+              value: /helm-working-dir
+            - name: HELM_DATA_HOME
+              value: /helm-working-dir
+          image: quay.io/argoproj/argocd:v2.3.4
+          imagePullPolicy: IfNotPresent
+          livenessProbe:
+            failureThreshold: 3
+            initialDelaySeconds: 10
+            periodSeconds: 10
+            successThreshold: 1
+            tcpSocket:
+              port: 8081
+            timeoutSeconds: 1
+          name: repo-server
+          ports:
+            - containerPort: 8081
+              name: repo-server
+              protocol: TCP
+          readinessProbe:
+            failureThreshold: 3
+            initialDelaySeconds: 10
+            periodSeconds: 10
+            successThreshold: 1
+            tcpSocket:
+              port: 8081
+            timeoutSeconds: 1
+          resources: {}
+          volumeMounts:
+            - mountPath: /app/config/gpg/source
+              name: gpg-keys
+            - mountPath: /app/config/gpg/keys
+              name: gpg-keyring
+            - mountPath: /app/config/ssh
+              name: ssh-known-hosts
+            - mountPath: /app/config/tls
+              name: tls-certs
+            - mountPath: /app/config/reposerver/tls
+              name: argocd-repo-server-tls
+            - mountPath: /tmp
+              name: tmp-dir
+            - mountPath: /helm-working-dir
+              name: helm-working-dir
+            - mountPath: /home/argocd/cmp-server/plugins
+              name: plugins
+      initContainers:
+        - command:
+            - cp
+            - -n
+            - /usr/local/bin/argocd
+            - /var/run/argocd/argocd-cmp-server
+          image: quay.io/argoproj/argocd:v2.3.4
+          imagePullPolicy: IfNotPresent
+          name: copyutil
+          resources: {}
+          volumeMounts:
+            - mountPath: /var/run/argocd
+              name: var-files
+      serviceAccountName: yargo-cd-argocd-repo-server
+      volumes:
+        - configMap:
+            name: argocd-gpg-keys-cm
+          name: gpg-keys
+        - emptyDir: {}
+          name: gpg-keyring
+        - configMap:
+            name: argocd-ssh-known-hosts-cm
+          name: ssh-known-hosts
+        - configMap:
+            name: argocd-tls-certs-cm
+          name: tls-certs
+        - emptyDir: {}
+          name: helm-working-dir
+        - name: argocd-repo-server-tls
+          secret:
+            items:
+              - key: tls.crt
+                path: tls.crt
+              - key: tls.key
+                path: tls.key
+              - key: ca.crt
+                path: ca.crt
+            optional: true
+            secretName: argocd-repo-server-tls
+        - emptyDir: {}
+          name: tmp-dir
+        - emptyDir: {}
+          name: var-files
+        - emptyDir: {}
+          name: plugins
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    app.kubernetes.io/component: server
+    app.kubernetes.io/instance: yargo-cd
+    app.kubernetes.io/managed-by: Helm
+    app.kubernetes.io/name: argocd-server
+    app.kubernetes.io/part-of: argocd
+    app.kubernetes.io/version: v2.3.4
+    helm.sh/chart: argo-cd-4.6.4
+  name: yargo-cd-argocd-server
+spec:
+  replicas: 1
+  revisionHistoryLimit: 5
+  selector:
+    matchLabels:
+      app.kubernetes.io/instance: yargo-cd
+      app.kubernetes.io/name: argocd-server
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/component: server
+        app.kubernetes.io/instance: yargo-cd
+        app.kubernetes.io/managed-by: Helm
+        app.kubernetes.io/name: argocd-server
+        app.kubernetes.io/part-of: argocd
+        app.kubernetes.io/version: v2.3.4
+        helm.sh/chart: argo-cd-4.6.4
+    spec:
+      containers:
+        - command:
+            - argocd-server
+            - --staticassets
+            - /shared/app
+            - --insecure  # 追加 2022.05.23
+            - --repo-server
+            - yargo-cd-argocd-repo-server:8081
+            - --dex-server
+            - http://yargo-cd-argocd-dex-server:5556
+            - --logformat
+            - text
+            - --loglevel
+            - info
+            - --redis
+            - yargo-cd-argocd-redis:6379
+          image: quay.io/argoproj/argocd:v2.3.4
+          imagePullPolicy: IfNotPresent
+          livenessProbe:
+            failureThreshold: 3
+            httpGet:
+              path: /healthz
+              port: 8080
+            initialDelaySeconds: 10
+            periodSeconds: 10
+            successThreshold: 1
+            timeoutSeconds: 1
+          name: server
+          ports:
+            - containerPort: 8080
+              name: server
+              protocol: TCP
+          readinessProbe:
+            failureThreshold: 3
+            httpGet:
+              path: /healthz
+              port: 8080
+            initialDelaySeconds: 10
+            periodSeconds: 10
+            successThreshold: 1
+            timeoutSeconds: 1
+          resources: {}
+          volumeMounts:
+            - mountPath: /app/config/ssh
+              name: ssh-known-hosts
+            - mountPath: /app/config/tls
+              name: tls-certs
+            - mountPath: /app/config/server/tls
+              name: argocd-repo-server-tls
+            - mountPath: /home/argocd
+              name: plugins-home
+            - mountPath: /tmp
+              name: tmp-dir
+      serviceAccountName: argocd-server
+      volumes:
+        - emptyDir: {}
+          name: tmp-dir
+        - configMap:
+            name: argocd-ssh-known-hosts-cm
+          name: ssh-known-hosts
+        - configMap:
+            name: argocd-tls-certs-cm
+          name: tls-certs
+        - name: argocd-repo-server-tls
+          secret:
+            items:
+              - key: tls.crt
+                path: tls.crt
+              - key: tls.key
+                path: tls.key
+              - key: ca.crt
+                path: ca.crt
+            optional: true
+            secretName: argocd-repo-server-tls
+        - emptyDir: {}
+          name: plugins-home
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    app.kubernetes.io/component: dex-server
+    app.kubernetes.io/instance: yargo-cd
+    app.kubernetes.io/managed-by: Helm
+    app.kubernetes.io/name: argocd-dex-server
+    app.kubernetes.io/part-of: argocd
+    app.kubernetes.io/version: v2.30.2
+    helm.sh/chart: argo-cd-4.6.4
+  name: yargo-cd-argocd-dex-server
+spec:
+  selector:
+    matchLabels:
+      app.kubernetes.io/instance: yargo-cd
+      app.kubernetes.io/name: argocd-dex-server
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/component: dex-server
+        app.kubernetes.io/instance: yargo-cd
+        app.kubernetes.io/managed-by: Helm
+        app.kubernetes.io/name: argocd-dex-server
+        app.kubernetes.io/part-of: argocd
+        app.kubernetes.io/version: v2.30.2
+        helm.sh/chart: argo-cd-4.6.4
+    spec:
+      containers:
+        - command:
+            - /shared/argocd-dex
+            - rundex
+          image: ghcr.io/dexidp/dex:v2.30.2
+          imagePullPolicy: IfNotPresent
+          name: dex-server
+          ports:
+            - containerPort: 5556
+              name: http
+              protocol: TCP
+            - containerPort: 5557
+              name: grpc
+              protocol: TCP
+            - containerPort: 5558
+              name: metrics
+              protocol: TCP
+          resources: {}
+          volumeMounts:
+            - mountPath: /tmp
+              name: tmp-dir
+            - mountPath: /shared
+              name: static-files
+      initContainers:
+        - command:
+            - cp
+            - -n
+            - /usr/local/bin/argocd
+            - /shared/argocd-dex
+          image: quay.io/argoproj/argocd:v2.3.4
+          imagePullPolicy: IfNotPresent
+          name: copyutil
+          resources: {}
+          volumeMounts:
+            - mountPath: /shared
+              name: static-files
+      serviceAccountName: argocd-dex-server
+      volumes:
+        - emptyDir: {}
+          name: tmp-dir
+        - emptyDir: {}
+          name: static-files
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    app.kubernetes.io/component: redis
+    app.kubernetes.io/instance: yargo-cd
+    app.kubernetes.io/managed-by: Helm
+    app.kubernetes.io/name: argocd-redis
+    app.kubernetes.io/part-of: argocd
+    app.kubernetes.io/version: 6.2.6-alpine
+    helm.sh/chart: argo-cd-4.6.4
+  name: yargo-cd-argocd-redis
+spec:
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: argocd-redis
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/component: redis
+        app.kubernetes.io/instance: yargo-cd
+        app.kubernetes.io/managed-by: Helm
+        app.kubernetes.io/name: argocd-redis
+        app.kubernetes.io/part-of: argocd
+        app.kubernetes.io/version: 6.2.6-alpine
+        helm.sh/chart: argo-cd-4.6.4
+    spec:
+      automountServiceAccountToken: false
+      containers:
+        - args:
+            - --save
+            - ""
+            - --appendonly
+            - "no"
+          image: redis:6.2.6-alpine
+          imagePullPolicy: IfNotPresent
+          name: yargo-cd-argocd-redis
+          ports:
+            - containerPort: 6379
+              name: redis
+          resources: {}
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 999
+      serviceAccountName: default
+---
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  labels:
+    app.kubernetes.io/component: application-controller
+    app.kubernetes.io/instance: yargo-cd
+    app.kubernetes.io/managed-by: Helm
+    app.kubernetes.io/name: argocd-application-controller
+    app.kubernetes.io/part-of: argocd
+    app.kubernetes.io/version: v2.3.4
+    helm.sh/chart: argo-cd-4.6.4
+  name: yargo-cd-argocd-application-controller
+spec:
+  replicas: 1
+  revisionHistoryLimit: 5
+  selector:
+    matchLabels:
+      app.kubernetes.io/instance: yargo-cd
+      app.kubernetes.io/name: argocd-application-controller
+  serviceName: yargo-cd-argocd-application-controller
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/component: application-controller
+        app.kubernetes.io/instance: yargo-cd
+        app.kubernetes.io/managed-by: Helm
+        app.kubernetes.io/name: argocd-application-controller
+        app.kubernetes.io/part-of: argocd
+        app.kubernetes.io/version: v2.3.4
+        helm.sh/chart: argo-cd-4.6.4
+    spec:
+      containers:
+        - command:
+            - argocd-application-controller
+            - --status-processors
+            - "20"
+            - --operation-processors
+            - "10"
+            - --app-resync
+            - "180"
+            - --self-heal-timeout-seconds
+            - "5"
+            - --repo-server
+            - yargo-cd-argocd-repo-server:8081
+            - --repo-server-timeout-seconds
+            - "60"
+            - --logformat
+            - text
+            - --loglevel
+            - info
+            - --redis
+            - yargo-cd-argocd-redis:6379
+          image: quay.io/argoproj/argocd:v2.3.4
+          imagePullPolicy: IfNotPresent
+          livenessProbe:
+            failureThreshold: 3
+            httpGet:
+              path: /healthz
+              port: 8082
+            initialDelaySeconds: 10
+            periodSeconds: 10
+            successThreshold: 1
+            timeoutSeconds: 1
+          name: application-controller
+          ports:
+            - containerPort: 8082
+              name: controller
+              protocol: TCP
+          readinessProbe:
+            failureThreshold: 3
+            initialDelaySeconds: 10
+            periodSeconds: 10
+            successThreshold: 1
+            tcpSocket:
+              port: 8082
+            timeoutSeconds: 1
+          resources: {}
+          volumeMounts:
+            - mountPath: /home/argocd
+              name: argocd-home
+            - mountPath: /app/config/controller/tls
+              name: argocd-repo-server-tls
+          workingDir: /home/argocd
+      serviceAccountName: argocd-application-controller
+      volumes:
+        - emptyDir: {}
+          name: argocd-home
+        - name: argocd-repo-server-tls
+          secret:
+            items:
+              - key: tls.crt
+                path: tls.crt
+              - key: tls.key
+                path: tls.key
+              - key: ca.crt
+                path: ca.crt
+            optional: true
+            secretName: argocd-repo-server-tls

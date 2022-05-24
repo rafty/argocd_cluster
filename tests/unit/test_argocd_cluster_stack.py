@@ -1,7 +1,7 @@
 import aws_cdk as core
 import aws_cdk.assertions as assertions
 
-from argocd_cluster.argocd_cluster_stack import ArgocdClusterStack
+from _stacks.argocd_cluster_stack import ArgocdClusterStack
 
 # example tests. To run these tests, uncomment this file along with the example
 # resource in argocd_cluster/argocd_cluster_stack.py
