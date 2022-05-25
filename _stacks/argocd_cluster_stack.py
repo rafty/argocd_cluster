@@ -20,18 +20,15 @@ class ArgocdClusterStack(Stack):
         super().__init__(scope, construct_id, **kwargs)
 
         self.configure = {
+            # VPC
             'vpc_name': 'argocd',
             'vpc_cidr': '10.11.0.0/16',
-
+            # Addon - Argocd
             'cluster_name': 'argocd',
             'argocd_namespace_name': 'argocd',
-            # 'argocd_chart_version': '3.33.5',
             # 'argocd_chart_version': '4.6.0',
-            # 'argocd_chart_version': '3.35.4',
-            'argocd_chart': 'argo-cd',
             'argocd_release': 'argocd-addon',
             'argocd_repository': 'https://argoproj.github.io/argo-helm',
-            # 'ssm_argo_server_pw': '/argocd/server/admin/password',
             'asm_argo_server_pw': '/argocd/server/admin/password',
 
             # Domain & Cert
@@ -47,35 +44,26 @@ class ArgocdClusterStack(Stack):
             # 'cluster': None,
         }
 
-        # VPC - three tier
         self.create_vpc()
+        # VPC - three tier, 2az
 
-        # EKS Cluster
+        self.create_eks()
+        # Create EKS Cluster
         #   With
         #       AWS LoadBalancer Controller
         #       External DNS
         #       Fluentbit
         #       CloudWatch Agent
-        self.create_eks()
 
-        # -------- delete at 2022.05.23 --------
-        #### 1.
-        #### self.add_on_argocd()
-        #### 2.
-        #### self.insecure_argocd()
-        #### 3.
-        #### $ kubectl scale -n argocd deployment/argocd-addon-server --replicas=0 && kubectl scale -n argocd deployment/argocd-addon-server --replicas=1
-        #### 4.
-        #### self.add_alb_ingress_to_argocd()
-        # -------- delete at 2022.05.23 --------
-
-        # -------- add 2022.05.23 --------
-        # XXXXXXX-> self.deploy_argocd()  # 2022.05.23 -> 手動でinstallする。
-
-
+        self.deploy_argocd()
+        # helmが動作しなければ手動で実施
         # % kubectl create namespace argocd
+        #
         # % kubectl apply -n argocd -f manifests/argocd-install.yaml
-        self.add_alb_ingress_to_argocd()  # 2022.05.24
+        # または kubectl apply -n argocd -f https://raw.githubusercontent.com/argoproj/argo-cd/stable/manifests/install.yaml
+
+        self.add_alb_ingress_to_argocd()
+        # ALBが動作するまで10分程度かかることもある。
 
     def create_vpc(self):
         # --------------------------------------------------------------
@@ -138,18 +126,16 @@ class ArgocdClusterStack(Stack):
         # )
 
         # ----------------------------------------------------------
-        # ALBを使用する際、namespace='kube-system'に
         # AWS LoadBalancer Controllerをインストールする
-        # (error) aws-load-balancer-controllerのPodが2つあるが、kube-systemはInstallしなくてもよいのか？？？？？
-        # ↑　kubectl logsから確認した。
+        # IngressからALBを作成する。
         # ----------------------------------------------------------
-        self.install_aws_load_balancer_controller()
+        self.deploy_aws_load_balancer_controller()
 
         # ----------------------------------------------------------
-        # ExternalDNS コントローラをインストールする
+        # ExternalDNS
         # ExternalDNSは TLS証明書持つALBのレコードをR53に登録する
         # ----------------------------------------------------------
-        self.install_external_dns()
+        self.deploy_external_dns()
 
         # ----------------------------------------------------------
         # Cloudwatch Container Insights - Metrics / CloudWatch Agent
@@ -160,9 +146,10 @@ class ArgocdClusterStack(Stack):
         # Cloudwatch Container Insights - Logs / fluentbit
         # ----------------------------------------------------------
         self.deploy_cloudwatch_container_insights_logs()
+
         return
 
-    def install_aws_load_balancer_controller(self):
+    def deploy_aws_load_balancer_controller(self):
         # ----------------------------------------------------------
         # AWS LoadBalancer Controller for AWS ALB
         #   - Service Account
@@ -209,7 +196,7 @@ class ArgocdClusterStack(Stack):
         )
         aws_lb_controller_chart.node.add_dependency(awslbcontroller_sa)
 
-    def install_external_dns(self):
+    def deploy_external_dns(self):
         # External DNS Controller
         #
         # External DNS Controller sets A-Record in the Hosted Zone of Route 53.
@@ -416,8 +403,10 @@ class ArgocdClusterStack(Stack):
                     'enabled': True,
                     'match': "*",
                     'region': self.region,
-                    # 'logGroupName': f'/aws/eks/fluentbit-cloudwatch/logs/{_cluster.cluster_name}/application',
-                    # 'logStreamPrefix': 'fluent-bit-',
+                    'logGroupName': f'/aws/eks/fluentbit-cloudwatch/logs/{_cluster.cluster_name}/application',
+                    # 'logGroupName': "/aws/eks/fluentbit-cloudwatch/logs/\$(kubernetes['namespace_name'])/\$(kubernetes['container_name']",
+                    # 'logGroupName': "/aws/eks/fluentbit/logs/$(kubernetes['namespace_name'])/$(kubernetes['container_name']",
+                    'logStreamPrefix': 'log-',  # 'fluent-bit-'
                     'logRetentionDays': 7,
                     'autoCreateGroup': True,
                 },
@@ -429,114 +418,56 @@ class ArgocdClusterStack(Stack):
         cloudwatch_helm_chart.node.add_dependency(fluentbit_service_account)
 
     def deploy_argocd(self):
-        # ---------------------------------------------------------------
-        # Changed to add_manifest - 2022.05.23
-        # ---------------------------------------------------------------
+        # ----------------------------------------------------------------
+        # Argo CD
+        # namespace(argocd)とServiceAccountはHelm(argo-cd)で作成するため
+        # ここでは作成しない。
+        # ----------------------------------------------------------------
         _cluster = self.resources.get('cluster')
+        _cert_arn = self.configure.get('cert_arn')
+        _sub_domain = self.configure.get('sub_domain')
 
-        _argocd_namespace_manifest = {
-            'apiVersion': 'v1',
-            'kind': 'Namespace',
-            'metadata': {
-                # 'name': self.configure.get('argocd_namespace_name'),
-                'name': self.configure.get('argocd'),
+        # ----------------------------------------------------------------
+        # Argo CD
+        # ----------------------------------------------------------------
+        _argocd_helm_chart = _cluster.add_helm_chart(
+            'ArgocdHelmChart',
+            namespace='argocd',
+            repository=self.configure.get('argocd_repository'),
+            chart='argo-cd',
+            release='argocd',  # Ingressの指定があるので'argocd'に固定する。
+            # version=self.configure.get('argocd_chart_version'),  # latest version
+            values={
+                'configs': {
+                    'secret': {
+                        'argocdServerAdminPassword': self.get_argocd_admin_password()
+                    }
+                }
             }
-        }
-        _argocd_namespace = _cluster.add_manifest(
-                  'ArgocdNamespace', _argocd_namespace_manifest)
+        )
 
-        # ----------------------------------------------------------
-        # Apply multiple yaml documents. - cdk8s-argocd.k8s.yaml
-        # ----------------------------------------------------------
-        # with open('./manifests/cdk8s-argocd.k8s.yaml', 'r') as f:
-        with open('./manifests/argocd-install.yaml', 'r') as f:
-            _yaml_docs = list(yaml.load_all(f, Loader=yaml.FullLoader))
-        for i, _yaml_doc in enumerate(_yaml_docs, 1):
-            _cluster.add_manifest(f'ArgoCD-{i}', _yaml_doc)
+    def get_argocd_admin_password(self):
+        # ------------------------------------------------------
+        # ASM Secret - argocdServerAdminPassword
+        # configs.secret.argocdServerAdminPassword must be
+        # Bcrypt hashed password.
+        # https://artifacthub.io/packages/helm/argo/argo-cd
+        # ------------------------------------------------------
+        _secret_name = self.configure.get('secret_name')
+        secret_string = self.get_asm_value_by_sdk(_secret_name)
+        pwd_context = CryptContext(schemes=['bcrypt'], deprecated='auto')
+        bcrypt_hashed = pwd_context.hash(secret_string)
+        return bcrypt_hashed
 
-    # def add_on_argocd(self):
-    #     # ----------------------------------------------------------------
-    #     # Argo CD namespace
-    #     # ----------------------------------------------------------------
-    #     _cluster = self.resources.get('cluster')
-    #     _argocd_namespace_manifest = {
-    #         'apiVersion': 'v1',
-    #         'kind': 'Namespace',
-    #         'metadata': {
-    #             'name': self.configure.get('argocd_namespace_name'),
-    #             'labels': {
-    #                 'name': self.configure.get('argocd_namespace_name')
-    #             }
-    #         }
-    #     }
-    #     _argocd_namespace = _cluster.add_manifest(
-    #               'ArgocdNamespace', _argocd_namespace_manifest)
-    #     # ----------------------------------------------------------------
-    #     # Service Account for Argo CD
-    #     # ----------------------------------------------------------------
-    #     _argocd_service_account = _cluster.add_service_account(
-    #         'ArgocdServiceAccount',
-    #         name='argocd-server',
-    #         namespace=self.configure.get('argocd_namespace_name')
-    #     )
-    #     _argocd_service_account.node.add_dependency(_argocd_namespace)
-    #     # ----------------------------------------------------------------
-    #     # Argo CD serverのデプロイ
-    #     # ----------------------------------------------------------------
-    #     # _cert_arn = self.configure.get('cert_arn')
-    #     # _sub_domain = self.configure.get('sub_domain')
-    #
-    #     _argocd_helm_chart = _cluster.add_helm_chart(
-    #         'ArgocdHelmChart',
-    #         namespace=self.configure.get('argocd_namespace_name'),
-    #         repository=self.configure.get('argocd_repository'),
-    #         chart=self.configure.get('argocd_chart'),
-    #         release=self.configure.get('argocd_release'),
-    #         # version=self.configure.get('argocd_chart_version'),  # latest version
-    #         values={
-    #             'server': {
-    #                 # 'extraArgs': [],
-    #                 'serviceAccount': {
-    #                     'name': _argocd_service_account.service_account_name,
-    #                     'create': False
-    #                 },
-    #                 'containerPort': 8080,  # targetPort default
-    #                 'service': {
-    #                     'type': 'NodePort',  # default: ClusterIP
-    #                     'servicePortHttpName': 'http',  # default
-    #                     'servicePortHttp': 80,  # default
-    #                 },
-    #             },
-    #             'configs': {
-    #                 'secret': {
-    #                     # 'createSecret': True,  # default
-    #                     'argocdServerAdminPassword': self.get_argocd_admin_password()
-    #                 }
-    #             }
-    #         }
-    #     )
-    #     _argocd_helm_chart.node.add_dependency(_argocd_service_account)
-    #
-    # def insecure_argocd(self):
-    #
-    #     _cluster = self.resources.get('cluster')
-    #     argocd_insecure_configmap = {
-    #         'apiVersion': 'v1',
-    #         'kind': 'ConfigMap',
-    #         'metadata': {
-    #             'labels': {'app.kubernetes.io/name': 'argocd-cmd-params-cm',
-    #                         'app.kubernetes.io/part-of': 'argocd'},
-    #             'name': 'argocd-cmd-params-cm',
-    #             'namespace': self.configure.get('argocd_namespace_name')
-    #         },
-    #         'data': {
-    #             'server.insecure': "true"
-    #         }
-    #     }
-    #     _cluster.add_manifest('InSecureArgoCD', argocd_insecure_configmap)
+    @staticmethod
+    def get_asm_value_by_sdk(secret_name: str):
+        # hash変換しなければならないのでCDKでのASM動的参照は使えない
+        # AWS SDKで実際に値を取得する必要がある
+        client = boto3.client('secretsmanager')
+        secret_value = client.get_secret_value(SecretId=secret_name)
+        secret_string = secret_value['SecretString']
+        return secret_string
 
-    # 2022.05.24 15:15 これを真似てみよう！
-    # https://github.com/uyoung9/fast/blob/083d25a0ab054f150c745a068836d9014ec1b15a/FastCampus-main/Part4_Kubernetes/Chapter11/mini-project/management/cd/argo-cd/ingress.yaml
     def add_alb_ingress_to_argocd(self):  # new at 2022.05.24 16:30
         _cluster = self.resources.get('cluster')
         _namespace = self.configure.get('argocd_namespace_name')
@@ -603,229 +534,3 @@ class ArgocdClusterStack(Stack):
         }
         argocd_ingress = _cluster.add_manifest('ArgocdIngress',
                                                ingress_argocd_server_manifest)
-
-    # def add_alb_ingress_to_argocd(self):
-    #     _cluster = self.resources.get('cluster')
-    #     _namespace = self.configure.get('argocd_namespace_name')
-    #     _cert_arn = self.configure.get('cert_arn')
-    #     _sub_domain = self.configure.get('sub_domain')
-    #
-    #     ingress_argocd_server_manifest = {
-    #         'apiVersion': 'networking.k8s.io/v1',
-    #         'kind': 'Ingress',
-    #         'metadata': {
-    #             'name': 'argocd',
-    #             'namespace': 'argocd',
-    #             'annotations': {
-    #                 'kubernetes.io/ingress.class': 'alb',
-    #                 'alb.ingress.kubernetes.io/scheme': 'internet-facing',
-    #                 'alb.ingress.kubernetes.io/target-type': 'ip',
-    #                 # 'alb.ingress.kubernetes.io/backend-protocol': 'HTTP',  # 追加 2022.05.24
-    #                 'alb.ingress.kubernetes.io/backend-protocol-version': 'HTTP1',
-    #                 'alb.ingress.kubernetes.io/healthcheck-path': '/healthz',
-    #                 'alb.ingress.kubernetes.io/success-codes': '200',
-    #                 'alb.ingress.kubernetes.io/listen-ports': '[{"HTTPS": 443}]',
-    #                 # 'alb.ingress.kubernetes.io/inbound-cidrs': 'xx.xx.xx.xx/32',
-    #                 'alb.ingress.kubernetes.io/certificate-arn': _cert_arn,
-    #                 'external-dns.alpha.kubernetes.io/hostname': _sub_domain,
-    #             },
-    #         },
-    #         'spec': {
-    #             'tls': [
-    #                 {
-    #                     'hosts': [
-    #                         'argocd.yamazon.tk'
-    #                     ]
-    #                 }
-    #             ],
-    #             'rules': [
-    #                 {
-    #                     'host': _sub_domain,
-    #                     'http': {
-    #                         'paths': [
-    #                             {
-    #                                 'path': '/',
-    #                                 # 'pathType': 'Prefix',
-    #                                 'pathType': 'ImplementationSpecific',
-    #                                 'backend': {
-    #                                     'service': {
-    #                                         'name': 'argocd-server',  # 宛先
-    #                                         'port': {
-    #                                             'number': 80,
-    #                                         }
-    #                                     }
-    #                                 }
-    #                             }
-    #                         ]
-    #                     }
-    #                 }
-    #             ]
-    #         }
-    #     }
-    #     argocd_ingress = _cluster.add_manifest('ArgocdIngress',
-    #                                            ingress_argocd_server_manifest)
-
-    # def add_on_argocd_old(self):
-    #     # - namespace
-    #     # - version
-    #     # - bootstrap Repository
-    #     # - bootstrap values
-    #     #
-    #     # - admin Password Secret Name
-    #     #   Optional admin password secret name as defined in
-    #     #   AWS Secrets Manager (plaintext).
-    #     #   This allows to control admin password across the enterprise.
-    #     #   Password will be retrieved and stored as a non-reverisble
-    #     #   bcrypt hash.
-    #     #   Note:
-    #     #   at present, change of password may require manual restart of
-    #     #   argocd server.
-    #     #
-    #     # - spi values
-    #     #   Values to pass to the chart as per
-    #     #   ('https://github.com/argoproj/argo-helm/blob'
-    #     #    '/master/charts/argo-cd/values.yaml.')
-    #
-    #     # ----------------------------------------------------------------
-    #     # Argo CD namespace
-    #     # ----------------------------------------------------------------
-    #     _cluster = self.resources.get('cluster')
-    #     _argocd_namespace_manifest = {
-    #         'apiVersion': 'v1',
-    #         'kind': 'Namespace',
-    #         'metadata': {
-    #             'name': self.configure.get('argocd_namespace_name'),
-    #             'labels': {
-    #                 'name': self.configure.get('argocd_namespace_name')
-    #             }
-    #         }
-    #     }
-    #     _argocd_namespace = _cluster.add_manifest(
-    #               'ArgocdNamespace', _argocd_namespace_manifest)
-    #
-    #     # ----------------------------------------------------------------
-    #     # Service Account for Argo CD
-    #     # ----------------------------------------------------------------
-    #     _argocd_service_account = _cluster.add_service_account(
-    #         'ArgocdServiceAccount',
-    #         name='argocd-server',
-    #         namespace=self.configure.get('argocd_namespace_name')
-    #     )
-    #     _argocd_service_account.node.add_dependency(_argocd_namespace)
-    #
-    #     # ----------------------------------------------------------------
-    #     # Argo CD serverのデプロイ
-    #     # ----------------------------------------------------------------
-    #     _cert_arn = self.configure.get('cert_arn')
-    #     _sub_domain = self.configure.get('sub_domain')
-    #
-    #     _argocd_helm_chart = _cluster.add_helm_chart(
-    #         'ArgocdHelmChart',
-    #         namespace=self.configure.get('argocd_namespace_name'),
-    #         repository=self.configure.get('argocd_repository'),
-    #         chart=self.configure.get('argocd_chart'),
-    #         release=self.configure.get('argocd_release'),
-    #         # version=self.configure.get('argocd_chart_version'),  # latest version
-    #         values={
-    #             'apiVersionOverrides': {
-    #                 'ingress': 'networking.k8s.io/v1',
-    #             },
-    #             'server': {
-    #                 'extraArgs': [],
-    #                 'serviceAccount': {
-    #                     'name': _argocd_service_account.service_account_name,
-    #                     'create': False
-    #                 },
-    #                 'containerPort': 8080,  # targetPort
-    #                 'service': {
-    #                     'type': 'NodePort',
-    #                     'servicePortHttpName': 'http',
-    #                     'servicePortHttp': 80,
-    #                     # 'annotations': {
-    #                     #     # 'alb.ingress.kubernetes.io/backend-protocol-version': 'HTTP2',
-    #                     #     # 'servicePortHttps': 443,
-    #                     #     # 'containerPort': 8080,
-    #                     #     # 'external-dns.alpha.kubernetes.io/hostname': _sub_domain,
-    #                     #     # 'service.beta.kubernetes.io/aws-load-balancer-ssl-ports': 'https',
-    #                     #     # 'service.beta.kubernetes.io/aws-load-balancer-connection-idle-timeout': '3600',
-    #                     #     # 'service.beta.kubernetes.io/aws-load-balancer-ip-address-type': 'dualstack',
-    #                     #     # 'service.beta.kubernetes.io/aws-load-balancer-ssl-cert': _cert_arn,
-    #                     # }
-    #                     # # https://github.com/nouseforaname/quake-installer/blob/08536e28c78e53ec17bceb503961b6da575eafde/helm-templates/helm-values-template.yml
-    #                     # # 証明書を設定するには、やっぱりALB Controllerが必要かもしれないが、なしでやってみよう。
-    #                 },
-    #                 'ingress': {
-    #                     'enabled': True,  # ingressを有効にする。
-    #                     'annotations': {
-    #                         'kubernetes.io/ingress.class': 'alb',
-    #                         'alb.ingress.kubernetes.io/scheme': 'internet-facing',
-    #                         'alb.ingress.kubernetes.io/target-type': 'ip',
-    #                         'alb.ingress.kubernetes.io/backend-protocol': 'HTTP',  # default
-    #                         'alb.ingress.kubernetes.io/backend-protocol-version': 'HTTP1',  # default
-    #                         'alb.ingress.kubernetes.io/listen-ports': '[{"HTTPS": 443}]',
-    #                         'alb.ingress.kubernetes.io/certificate-arn': _cert_arn,
-    #                         #######
-    #                         #######
-    #                         #######
-    #                         # 'external-dns.alpha.kubernetes.io/hostname': _sub_domain,
-    #                         #######
-    #                         #######
-    #                         #######
-    #                     },
-    #                     'server.ingress.hosts': ['argocd.yamazon.tk'],
-    #                     'server.ingress.paths': []
-    #                 }
-    #             },
-    #             #######
-    #             #######
-    #             #######
-    #             # 'configs': {
-    #             #     'secret': {
-    #             #         # 'createSecret': True,  # default
-    #             #         'argocdServerAdminPassword': self.get_argocd_admin_password()
-    #             #     }
-    #             # }
-    #             #######
-    #             #######
-    #             #######
-    #
-    #         }
-    #     )
-    #     _argocd_helm_chart.node.add_dependency(_argocd_service_account)
-
-        # ???? もしかすると aws-load-balancer-controllerをhelmで
-        # ???? インストールしなければならないかも・・・
-
-        # # https://artifacthub.io/packages/helm/argo/argo-cd
-        # ArgoCDはELBでサーバが立ち上がるので
-        # server.ingress.annotationsにEXternalDNSとCertを指定する。
-        # https://aws.amazon.com/jp/premiumsupport/knowledge-center/terminate-https-traffic-eks-acm/
-        # [ACMでAmazonEKSワークロードのHTTPSトラフィック]
-
-        # ArgoCDサーバはELBで起動する。
-        # 1. SSM Parameter Store - Secret
-        # 2. ACM で　証明書
-        # 3. ExternalDNSでRoute53設定
-        # これでまともなサーバにできる！！
-
-    def get_argocd_admin_password(self):
-        # ------------------------------------------------------
-        # ASM Secret - argocdServerAdminPassword
-        # configs.secret.argocdServerAdminPassword must be
-        # Bcrypt hashed password.
-        # https://artifacthub.io/packages/helm/argo/argo-cd
-        # ------------------------------------------------------
-        _secret_name = self.configure.get('secret_name')
-        secret_string = self.get_asm_value_by_sdk(_secret_name)
-        pwd_context = CryptContext(schemes=['bcrypt'], deprecated='auto')
-        bcrypt_hashed = pwd_context.hash(secret_string)
-        return bcrypt_hashed
-
-    @staticmethod
-    def get_asm_value_by_sdk(secret_name: str):
-        # hash変換しなければならないのでCDKでのASM動的参照は使えない
-        # AWS SDKで実際に値を取得する必要がある
-        client = boto3.client('secretsmanager')
-        secret_value = client.get_secret_value(SecretId=secret_name)
-        secret_string = secret_value['SecretString']
-        return secret_string
